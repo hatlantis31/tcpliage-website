@@ -1,0 +1,19 @@
+:root {
+    --primary-color: #363636;
+    --secondary-color: #209cee;
+  }
+  
+  .card {
+    transition: transform 0.3s ease;
+  }
+  
+  .card:hover {
+    transform: translateY(-5px);
+  }
+  
+  .hero {
+    background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/hero-background.jpg');
+    background-size: cover;
+    background-position: center;
+  }
+  
