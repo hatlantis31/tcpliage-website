@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -53,10 +54,15 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# Allow requests from your Svelte frontend
+# Development CORS settings
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5000",  # Your Svelte dev server
+    "http://localhost:5173",  # Svelte dev server
+    "http://127.0.0.1:5173",
 ]
+
+# For serving media files
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 ROOT_URLCONF = 'tcpliage_backend.urls'
 

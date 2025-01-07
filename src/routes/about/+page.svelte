@@ -27,7 +27,7 @@
 <section class="hero is-medium is-dark">
   <div class="hero-body">
     <div class="container">
-      <h1 class="title is-1">Nos Services</h1>
+      <h1 class="title is-1">A propos</h1>
       <h2 class="subtitle">Solutions Professionnelles de Fabrication Métallique</h2>
     </div>
   </div>
