@@ -4,6 +4,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import Service, MetalPiece, Order
 from .serializers import ServiceSerializer, MetalPieceSerializer, OrderSerializer
+import math
+from django.http import JsonResponse
 
 
 class ServiceViewSet(viewsets.ModelViewSet):
@@ -18,66 +20,98 @@ class MetalPieceViewSet(viewsets.ModelViewSet):
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
+    
+#########################################################################
+######### metal_api/views.py        ###################################
+#########################################################################
 
-# metal_api/views.py
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-import math
 
-def calculate_angle(p1, p2, p3):
-    """Calcule l'angle entre trois points en degrés"""
-    a = math.sqrt((p2['x'] - p1['x'])**2 + (p2['y'] - p1['y'])**2)
-    b = math.sqrt((p2['x'] - p3['x'])**2 + (p2['y'] - p3['y'])**2)
-    c = math.sqrt((p3['x'] - p1['x'])**2 + (p3['y'] - p1['y'])**2)
+SHAPES = {
+    'rectangle': {
+        'id': 'rectangle',
+        'name': 'Rectangle',
+        'preview_url': '/static/shapes/rectangle.svg',
+        'dimensions': {
+            'length': {'label': 'Longueur', 'min': 10, 'max': 1000, 'step': 1},
+            'width': {'label': 'Largeur', 'min': 10, 'max': 1000, 'step': 1}
+        }
+    },
+    'circle': {
+        'id': 'circle',
+        'name': 'Cercle',
+        'preview_url': '/static/shapes/circle.svg',
+        'dimensions': {
+            'diameter': {'label': 'Diamètre', 'min': 10, 'max': 1000, 'step': 1}
+        }
+    }
+}
 
-    cos_angle = (a**2 + b**2 - c**2) / (2 * a * b)
-    angle = math.degrees(math.acos(max(-1, min(1, cos_angle))))
-    return angle
+
+@api_view(['GET'])
+def get_shapes(request):
+    return Response(list(SHAPES.values()))
+
+
+@api_view(['GET'])
+def get_shape_config(request, shape_id):
+    if shape_id not in SHAPES:
+        return Response({'error': 'Shape not found'}, status=404)
+    return Response(SHAPES[shape_id])
+
 
 @api_view(['POST'])
-def validate_piece(request):
-    points = request.data.get('points', [])
-    thickness = request.data.get('thickness')
-    material = request.data.get('material')
+def validate_design(request):
+    design = request.data
 
-    # Validation minimale
-    if len(points) < 3:
+    # Validate material
+    if design['material'] not in ['acier', 'aluminium', 'inox']:
         return Response({
             'valid': False,
-            'message': "La pièce doit avoir au moins 3 points"
+            'message': 'Matériau invalide'
         })
 
-    # Vérifier l'épaisseur
-    if thickness < 0.5 or thickness > 50:
+    # Validate shape
+    if design['shape'] not in SHAPES:
         return Response({
             'valid': False,
-            'message': "L'épaisseur doit être entre 0.5mm et 50mm"
+            'message': 'Forme invalide'
         })
 
-    # Vérifier les dimensions maximales
-    max_x = max(p['x'] for p in points)
-    max_y = max(p['y'] for p in points)
-    if max_x > 3000 or max_y > 3000:
-        return Response({
-            'valid': False,
-            'message': "Les dimensions ne peuvent pas dépasser 3000mm"
-        })
-
-    # Vérifier les angles minimaux
-    min_angle = 30
-    for i in range(len(points)):
-        p1 = points[i]
-        p2 = points[(i + 1) % len(points)]
-        p3 = points[(i + 2) % len(points)]
-
-        angle = calculate_angle(p1, p2, p3)
-        if angle < min_angle:
+    # Validate dimensions
+    shape_config = SHAPES[design['shape']]
+    for key, config in shape_config['dimensions'].items():
+        value = float(design['dimensions'].get(key, 0))
+        if value < config['min'] or value > config['max']:
             return Response({
                 'valid': False,
-                'message': f"L'angle au point {i+2} est trop aigu (minimum {min_angle}°)"
+                'message': f'Dimension {config["label"]} invalide'
             })
+
+    # Calculate price
+    price = calculate_price(design)
 
     return Response({
         'valid': True,
-        'message': "OK"
+        'message': 'Design validé',
+        'price': price
     })
+
+
+def calculate_price(design):
+    # Basic price calculation
+    base_prices = {
+        'acier': 1.0,
+        'aluminium': 1.5,
+        'inox': 2.0
+    }
+
+    # Calculate area based on shape
+    area = 0
+    if design['shape'] == 'rectangle':
+        area = float(design['dimensions']['length']) * \
+            float(design['dimensions']['width'])
+    elif design['shape'] == 'circle':
+        diameter = float(design['dimensions']['diameter'])
+        area = 3.14159 * (diameter/2) ** 2
+
+    return round(area * base_prices[design['material']] / 100, 2)
