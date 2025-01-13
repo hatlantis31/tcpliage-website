@@ -1,17 +1,20 @@
 # views.py
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .models import Service, MetalPiece, Order
-from .serializers import ServiceSerializer, MetalPieceSerializer, OrderSerializer
-import math
-from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from .models import Service, MetalPiece, Order, Design
+from .serializers import (
+    ServiceSerializer, MetalPieceSerializer, 
+    OrderSerializer, DesignSerializer
+)
+from .constants import SHAPES, MATERIALS
 
 
+# ViewSets
 class ServiceViewSet(viewsets.ModelViewSet):
     queryset = Service.objects.all()
     serializer_class = ServiceSerializer
-
 
 class MetalPieceViewSet(viewsets.ModelViewSet):
     queryset = MetalPiece.objects.all()
@@ -20,51 +23,52 @@ class MetalPieceViewSet(viewsets.ModelViewSet):
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
-    
-#########################################################################
-######### metal_api/views.py        ###################################
-#########################################################################
 
+# Helper Functions
+def calculate_area(shape, dimensions):
+    """Calculate area based on shape and dimensions"""
+    if shape == 'rectangle':
+        return float(dimensions['length']) * float(dimensions['width'])
+    elif shape == 'circle':
+        diameter = float(dimensions['diameter'])
+        return 3.14159 * (diameter/2) ** 2
+    return 0
 
-SHAPES = {
-    'rectangle': {
-        'id': 'rectangle',
-        'name': 'Rectangle',
-        'preview_url': '/static/shapes/rectangle.svg',
-        'dimensions': {
-            'length': {'label': 'Longueur', 'min': 10, 'max': 1000, 'step': 1},
-            'width': {'label': 'Largeur', 'min': 10, 'max': 1000, 'step': 1}
-        }
-    },
-    'circle': {
-        'id': 'circle',
-        'name': 'Cercle',
-        'preview_url': '/static/shapes/circle.svg',
-        'dimensions': {
-            'diameter': {'label': 'Diamètre', 'min': 10, 'max': 1000, 'step': 1}
-        }
-    }
-}
+def calculate_price(material, shape, dimensions):
+    """Calculate price based on material, shape and dimensions"""
+    area = calculate_area(shape, dimensions)
+    price_multiplier = MATERIALS[material]['price_multiplier']
+    return round(area * price_multiplier / 100, 2)
 
+def validate_dimensions(shape, dimensions):
+    """Validate dimensions against shape configuration"""
+    shape_config = SHAPES[shape]
+    for key, config in shape_config['dimensions'].items():
+        value = float(dimensions.get(key, 0))
+        if value < config['min'] or value > config['max']:
+            return False, f'Dimension {config["label"]} invalide'
+    return True, None
 
+# API Endpoints
 @api_view(['GET'])
 def get_shapes(request):
+    """Get all available shapes"""
     return Response(list(SHAPES.values()))
-
 
 @api_view(['GET'])
 def get_shape_config(request, shape_id):
+    """Get configuration for specific shape"""
     if shape_id not in SHAPES:
         return Response({'error': 'Shape not found'}, status=404)
     return Response(SHAPES[shape_id])
 
-
 @api_view(['POST'])
 def validate_design(request):
+    """Validate design and calculate price"""
     design = request.data
 
     # Validate material
-    if design['material'] not in ['acier', 'aluminium', 'inox']:
+    if design['material'] not in MATERIALS:
         return Response({
             'valid': False,
             'message': 'Matériau invalide'
@@ -78,17 +82,15 @@ def validate_design(request):
         })
 
     # Validate dimensions
-    shape_config = SHAPES[design['shape']]
-    for key, config in shape_config['dimensions'].items():
-        value = float(design['dimensions'].get(key, 0))
-        if value < config['min'] or value > config['max']:
-            return Response({
-                'valid': False,
-                'message': f'Dimension {config["label"]} invalide'
-            })
+    is_valid, error_message = validate_dimensions(design['shape'], design['dimensions'])
+    if not is_valid:
+        return Response({
+            'valid': False,
+            'message': error_message
+        })
 
     # Calculate price
-    price = calculate_price(design)
+    price = calculate_price(design['material'], design['shape'], design['dimensions'])
 
     return Response({
         'valid': True,
@@ -96,22 +98,35 @@ def validate_design(request):
         'price': price
     })
 
+@api_view(['POST'])
+def save_design(request):
+    """Save a new design with its pieces"""
+    try:
+        design = Design.objects.create(
+            name=request.data.get('name', 'Untitled Design')
+        )
 
-def calculate_price(design):
-    # Basic price calculation
-    base_prices = {
-        'acier': 1.0,
-        'aluminium': 1.5,
-        'inox': 2.0
-    }
+        for piece_data in request.data.get('pieces', []):
+            piece = MetalPiece.objects.create(
+                piece_id=piece_data['id'],
+                material=piece_data['material'],
+                shape=piece_data['type'],
+                dimensions=piece_data['dimensions'],
+                position_x=piece_data['position']['x'],
+                position_y=piece_data['position']['y'],
+                thickness=piece_data.get('thickness', 1.0)
+            )
+            design.pieces.add(piece)
 
-    # Calculate area based on shape
-    area = 0
-    if design['shape'] == 'rectangle':
-        area = float(design['dimensions']['length']) * \
-            float(design['dimensions']['width'])
-    elif design['shape'] == 'circle':
-        diameter = float(design['dimensions']['diameter'])
-        area = 3.14159 * (diameter/2) ** 2
+        return Response(DesignSerializer(design).data)
+    except Exception as e:
+        return Response(
+            {'error': str(e)}, 
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
-    return round(area * base_prices[design['material']] / 100, 2)
+@api_view(['GET'])
+def get_design(request, design_id):
+    """Get a specific design by ID"""
+    design = get_object_or_404(Design, id=design_id)
+    return Response(DesignSerializer(design).data)
