@@ -1,4 +1,4 @@
-<!-- MetalDesigner.svelte - Main container component -->
+<!-- src/routes/designer/+page.svelte -->
 <script>
   import { onMount } from 'svelte';
   import MaterialSelector from '$lib/components/steps/MaterialSelector.svelte';
@@ -6,15 +6,23 @@
   import ShapeEditor from '$lib/components/steps/ShapeEditor.svelte';
   import CoatingSelector from '$lib/components/steps/CoatingSelector.svelte';
   import DesignSummary from '$lib/components/steps/DesignSummary.svelte';
+  import { v4 as uuidv4 } from 'uuid';
   
   // State for the entire design process
   let currentStep = 1;
   let design = {
+    id: uuidv4(),
     material: null,
     shape: null,
     cutouts: [],
-    coating: null
+    coating: null,
+    created_at: new Date().toISOString()
   };
+  
+  // Submission state
+  let isSubmitting = false;
+  let submitSuccess = null;
+  let submitError = null;
   
   // Step definitions
   const steps = [
@@ -46,27 +54,67 @@
     design[field] = value;
   }
   
+  // Validate current step before proceeding
+  function validateCurrentStep() {
+    switch (currentStep) {
+      case 1: // Material
+        return !!design.material;
+      case 2: // Shape
+        return !!design.shape && !!design.shape.dimensions;
+      case 3: // Customize (always valid)
+        return true;
+      case 4: // Coating
+        return !!design.coating;
+      default:
+        return true;
+    }
+  }
+  
   // Submit the design to the backend
   async function submitDesign() {
     try {
-      const response = await fetch('/api/metal-designs/', {
+      isSubmitting = true;
+      submitSuccess = null;
+      submitError = null;
+      
+      // Prepare data for submission
+      const designData = {
+        material_id: design.material?.id,
+        shape_template_id: design.shape?.id,
+        shape_dimensions: design.shape?.dimensions,
+        cutouts: design.cutouts,
+        coating_id: design.coating?.id,
+        color_id: design.coating?.color?.id,
+        notes: ''
+      };
+      
+      const response = await fetch('/api/metal-piece/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(design)
+        body: JSON.stringify(designData)
       });
       
       if (response.ok) {
-        alert('Design submitted successfully! You will receive a price quote soon.');
+        const result = await response.json();
+        submitSuccess = 'Design submitted successfully! You will receive a price quote soon.';
+        // Clear or reset the design
+        // design = { id: uuidv4(), material: null, shape: null, cutouts: [], coating: null };
       } else {
-        alert('Error submitting design. Please try again.');
+        const errorData = await response.json();
+        submitError = errorData.error || 'Error submitting design. Please try again.';
       }
     } catch (error) {
       console.error('Error submitting design:', error);
-      alert('Error submitting design. Please try again.');
+      submitError = 'Error connecting to server. Please try again later.';
+    } finally {
+      isSubmitting = false;
     }
   }
+  
+  // Check if we can proceed to the next step
+  $: canProceed = validateCurrentStep();
 </script>
 
 <div class="container">
@@ -99,6 +147,36 @@
         />
       </div>
       
+      <!-- Display validation warnings -->
+      {#if !canProceed && currentStep < steps.length}
+        <div class="notification is-warning mt-3">
+          <p>
+            {#if currentStep === 1}
+              Please select a material to continue.
+            {:else if currentStep === 2}
+              Please specify a shape and its dimensions to continue.
+            {:else if currentStep === 4}
+              Please select a coating to continue.
+            {:else}
+              Please complete this step before continuing.
+            {/if}
+          </p>
+        </div>
+      {/if}
+      
+      <!-- Submission messages -->
+      {#if submitSuccess}
+        <div class="notification is-success mt-3">
+          <p>{submitSuccess}</p>
+        </div>
+      {/if}
+      
+      {#if submitError}
+        <div class="notification is-danger mt-3">
+          <p>{submitError}</p>
+        </div>
+      {/if}
+      
       <!-- Navigation buttons -->
       <div class="buttons is-centered mt-4">
         {#if currentStep > 1}
@@ -111,23 +189,69 @@
         {/if}
         
         {#if currentStep < steps.length}
-          <button class="button is-primary is-medium" on:click={nextStep}>
+          <button 
+            class="button is-primary is-medium" 
+            on:click={nextStep}
+            disabled={!canProceed}
+          >
             <span>Next</span>
             <span class="icon">
               <i class="fas fa-arrow-right"></i>
             </span>
           </button>
         {:else}
-          <button class="button is-success is-medium" on:click={submitDesign}>
+          <button 
+            class="button is-success is-medium" 
+            on:click={submitDesign}
+            disabled={isSubmitting}
+          >
             <span class="icon">
               <i class="fas fa-check"></i>
             </span>
-            <span>Submit Design</span>
+            <span>{isSubmitting ? 'Submitting...' : 'Submit Design'}</span>
           </button>
         {/if}
       </div>
     </div>
   </div>
+  
+  <!-- Design overview -->
+  {#if currentStep > 1}
+    <div class="columns mt-5">
+      <div class="column is-8 is-offset-2">
+        <div class="box">
+          <h3 class="title is-5">Design Overview</h3>
+          <div class="columns">
+            <div class="column is-4">
+              <div class="has-text-weight-bold">Material</div>
+              <p>{design.material?.name || 'Not selected'}</p>
+            </div>
+            <div class="column is-4">
+              <div class="has-text-weight-bold">Shape</div>
+              <p>
+                {#if design.shape}
+                  {design.shape.name} 
+                  {#if design.shape.dimensions}
+                    {#if design.shape.id === 'circle'}
+                      (Ø{design.shape.dimensions.diameter}mm)
+                    {:else}
+                      ({design.shape.dimensions.width}×{design.shape.dimensions.height}mm)
+                    {/if}
+                  {/if}
+                {:else}
+                  Not selected
+                {/if}
+              </p>
+            </div>
+            <div class="column is-4">
+              <div class="has-text-weight-bold">Cutouts & Coating</div>
+              <p>{design.cutouts?.length || 0} cutouts, {design.coating?.name || 'No coating'}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  {/if}
 </div>
 
 <style>
