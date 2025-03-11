@@ -4,11 +4,8 @@ from rest_framework.routers import DefaultRouter
 from metal_api import views
 
 # Create a router and register viewsets
-router = DefaultRouter()
-router.register(r'designs', views.MetalDesignViewSet)
-router.register(r'quotes', views.PriceQuoteViewSet)
 
 urlpatterns = [
-    path('api/', include(router.urls)),
+    path('api/', include('metal_api.urls')),
     # Add additional endpoints if needed
 ]

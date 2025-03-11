@@ -1,107 +1,114 @@
-# models.py
+# metal_designer/models.py
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 import uuid
 import json
 
+User = get_user_model()
+
+
+class Material(models.Model):
+    """Model for metal materials."""
+    id = models.CharField(max_length=50, primary_key=True)
+    name = models.CharField(max_length=100)
+    description = models.TextField()
+    density = models.FloatField(help_text="Density in g/cm³")
+    price_per_kg = models.DecimalField(max_digits=10, decimal_places=2)
+    image = models.ImageField(upload_to='materials/', null=True, blank=True)
+
+    def __str__(self):
+        return self.name
+
+
+class ShapeTemplate(models.Model):
+    """Model for predefined shapes."""
+    id = models.CharField(max_length=50, primary_key=True)
+    name = models.CharField(max_length=100)
+    description = models.TextField()
+    svg_path = models.TextField(help_text="SVG path data for rendering")
+
+    def __str__(self):
+        return self.name
+
+
+class Coating(models.Model):
+    """Model for coating options."""
+    id = models.CharField(max_length=50, primary_key=True)
+    name = models.CharField(max_length=100)
+    description = models.TextField()
+    price_factor = models.FloatField(help_text="Multiplier for the base price")
+    image = models.ImageField(upload_to='coatings/', null=True, blank=True)
+
+    # Many-to-many relationship with materials
+    compatible_materials = models.ManyToManyField(Material)
+
+    def __str__(self):
+        return self.name
+
+
+class Color(models.Model):
+    """Model for coating colors."""
+    id = models.CharField(max_length=50, primary_key=True)
+    name = models.CharField(max_length=100)
+    hex_code = models.CharField(max_length=7)
+
+    def __str__(self):
+        return self.name
+
 
 class MetalDesign(models.Model):
-    STATUS_CHOICES = (
-        ('pending', 'Pending Review'),
-        ('quoted', 'Price Quoted'),
+    """Model for user metal piece designs."""
+    STATUS_CHOICES = [
+        ('pending', 'Pending Quote'),
+        ('quoted', 'Quote Provided'),
         ('accepted', 'Quote Accepted'),
         ('rejected', 'Quote Rejected'),
         ('in_production', 'In Production'),
         ('completed', 'Completed'),
-    )
+    ]
 
-    MATERIAL_CHOICES = (
-        ('steel', 'Steel'),
-        ('aluminum', 'Aluminum'),
-        ('copper', 'Copper'),
-        ('brass', 'Brass'),
-    )
-
-    FINISH_CHOICES = (
-        ('none', 'None (Raw)'),
-        ('polished', 'Polished'),
-        ('brushed', 'Brushed'),
-        ('painted', 'Painted'),
-        ('powder-coated', 'Powder Coated'),
-    )
-
-    # Identification
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=255, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    # User information
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, null=True, blank=True)
-    email = models.EmailField(blank=True)  # For non-registered users
-
-    # Status
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     status = models.CharField(
         max_length=20, choices=STATUS_CHOICES, default='pending')
 
-    # Dimensions
-    width = models.FloatField()
-    height = models.FloatField()
-    depth = models.FloatField()
+    # Design specifications
+    material = models.ForeignKey(Material, on_delete=models.PROTECT)
+    shape_template = models.ForeignKey(ShapeTemplate, on_delete=models.PROTECT)
+    shape_dimensions = models.JSONField(
+        help_text="JSON object with dimensions")
+    cutouts = models.JSONField(
+        default=list, help_text="JSON array of cutout coordinates")
+    coating = models.ForeignKey(
+        Coating, on_delete=models.PROTECT, null=True, blank=True)
+    color = models.ForeignKey(
+        Color, on_delete=models.PROTECT, null=True, blank=True)
 
-    # Material
-    material = models.CharField(max_length=20, choices=MATERIAL_CHOICES)
-    thickness = models.FloatField()
-    finish = models.CharField(max_length=20, choices=FINISH_CHOICES)
-
-    # Shape and features
-    shape = models.CharField(max_length=20)
-    custom_path = models.TextField(blank=True)
-    features_json = models.TextField(blank=True)  # Stored as JSON
-
-    # Additional info
-    notes = models.TextField(blank=True)
-    svg_preview = models.TextField(blank=True)  # Store SVG as text
-
-    # Price quote
-    price = models.DecimalField(
+    # Quote information
+    quoted_price = models.DecimalField(
         max_digits=10, decimal_places=2, null=True, blank=True)
-    quote_notes = models.TextField(blank=True)
     quoted_at = models.DateTimeField(null=True, blank=True)
-    quoted_by = models.ForeignKey(
-        User, related_name='quoted_designs', on_delete=models.SET_NULL, null=True, blank=True)
+    estimated_production_time = models.PositiveIntegerField(
+        null=True, blank=True, help_text="Estimated production time in days")
 
-    class Meta:
-        ordering = ['-created_at']
+    # Additional metadata
+    notes = models.TextField(blank=True)
 
     def __str__(self):
-        return f"{self.name or 'Unnamed design'} ({self.id})"
+        return f"Design {self.id} - {self.status}"
 
     @property
-    def features(self):
-        if not self.features_json:
-            return []
-        return json.loads(self.features_json)
+    def get_dimensions_display(self):
+        """Format dimensions for display."""
+        dimensions = self.shape_dimensions
+        if self.shape_template.id == 'circle':
+            return f"Diameter: {dimensions.get('diameter')}mm, Thickness: {dimensions.get('thickness')}mm"
+        return f"Width: {dimensions.get('width')}mm, Height: {dimensions.get('height')}mm, Thickness: {dimensions.get('thickness')}mm"
 
-    @features.setter
-    def features(self, features_list):
-        self.features_json = json.dumps(features_list)
-
-    def get_absolute_url(self):
-        from django.urls import reverse
-        return reverse('design_detail', args=[str(self.id)])
-
-
-class PriceQuote(models.Model):
-    design = models.ForeignKey(
-        MetalDesign, on_delete=models.CASCADE, related_name='quotes')
-    created_at = models.DateTimeField(auto_now_add=True)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    estimated_production_days = models.IntegerField(default=7)
-    notes = models.TextField(blank=True)
-    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    is_current = models.BooleanField(default=True)
-
-    def __str__(self):
-        return f"Quote ${self.price} for {self.design}"
+    @property
+    def cutout_count(self):
+        """Return the number of cutouts."""
+        return len(self.cutouts) if self.cutouts else 0

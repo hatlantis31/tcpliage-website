@@ -1,0 +1,185 @@
+[
+  {
+    "model": "metal_api.material",
+    "pk": "steel",
+    "fields": {
+      "name": "Steel",
+      "description": "Durable and strong",
+      "density": 7.85,
+      "price_per_kg": 3.5,
+      "image": "materials/steel.jpg"
+    }
+  },
+  {
+    "model": "metal_api.material",
+    "pk": "aluminum",
+    "fields": {
+      "name": "Aluminum",
+      "description": "Lightweight and corrosion-resistant",
+      "density": 2.7,
+      "price_per_kg": 5.2,
+      "image": "materials/aluminum.jpg"
+    }
+  },
+  {
+    "model": "metal_api.material",
+    "pk": "copper",
+    "fields": {
+      "name": "Copper",
+      "description": "Excellent conductivity",
+      "density": 8.96,
+      "price_per_kg": 8.75,
+      "image": "materials/copper.jpg"
+    }
+  },
+  {
+    "model": "metal_api.material",
+    "pk": "brass",
+    "fields": {
+      "name": "Brass",
+      "description": "Good machinability and corrosion resistance",
+      "density": 8.4,
+      "price_per_kg": 7.3,
+      "image": "materials/brass.jpg"
+    }
+  },
+  {
+    "model": "metal_api.shapetemplate",
+    "pk": "rectangle",
+    "fields": {
+      "name": "Rectangle",
+      "description": "Simple rectangular piece",
+      "svg_path": "M10,10 L190,10 L190,90 L10,90 Z"
+    }
+  },
+  {
+    "model": "metal_api.shapetemplate",
+    "pk": "circle",
+    "fields": {
+      "name": "Circle",
+      "description": "Circular piece",
+      "svg_path": "M100,50 a50,50 0 1,0 0.1,0 Z"
+    }
+  },
+  {
+    "model": "metal_api.shapetemplate",
+    "pk": "triangle",
+    "fields": {
+      "name": "Triangle",
+      "description": "Triangular piece",
+      "svg_path": "M100,10 L190,90 L10,90 Z"
+    }
+  },
+  {
+    "model": "metal_api.shapetemplate",
+    "pk": "L-shape",
+    "fields": {
+      "name": "L-Shape",
+      "description": "L-shaped piece",
+      "svg_path": "M10,10 L90,10 L90,50 L150,50 L150,90 L10,90 Z"
+    }
+  },
+  {
+    "model": "metal_api.coating",
+    "pk": "none",
+    "fields": {
+      "name": "No Coating",
+      "description": "Raw metal without coating",
+      "price_factor": 1.0,
+      "image": "coatings/none.jpg",
+      "compatible_materials": ["steel", "aluminum", "copper", "brass"]
+    }
+  },
+  {
+    "model": "metal_api.coating",
+    "pk": "painted",
+    "fields": {
+      "name": "Painted",
+      "description": "Smooth painted surface",
+      "price_factor": 1.2,
+      "image": "coatings/painted.jpg",
+      "compatible_materials": ["steel", "aluminum"]
+    }
+  },
+  {
+    "model": "metal_api.coating",
+    "pk": "powder-coated",
+    "fields": {
+      "name": "Powder Coated",
+      "description": "Durable matte finish",
+      "price_factor": 1.5,
+      "image": "coatings/powder-coated.jpg",
+      "compatible_materials": ["steel", "aluminum"]
+    }
+  },
+  {
+    "model": "metal_api.coating",
+    "pk": "anodized",
+    "fields": {
+      "name": "Anodized",
+      "description": "Only for aluminum, corrosion-resistant",
+      "price_factor": 1.8,
+      "image": "coatings/anodized.jpg",
+      "compatible_materials": ["aluminum"]
+    }
+  },
+  {
+    "model": "metal_api.coating",
+    "pk": "galvanized",
+    "fields": {
+      "name": "Galvanized",
+      "description": "Zinc coating for rust prevention",
+      "price_factor": 1.3,
+      "image": "coatings/galvanized.jpg",
+      "compatible_materials": ["steel"]
+    }
+  },
+  {
+    "model": "metal_api.color",
+    "pk": "black",
+    "fields": {
+      "name": "Black",
+      "hex_code": "#000000"
+    }
+  },
+  {
+    "model": "metal_api.color",
+    "pk": "white",
+    "fields": {
+      "name": "White",
+      "hex_code": "#FFFFFF"
+    }
+  },
+  {
+    "model": "metal_api.color",
+    "pk": "red",
+    "fields": {
+      "name": "Red",
+      "hex_code": "#FF0000"
+    }
+  },
+  {
+    "model": "metal_api.color",
+    "pk": "blue",
+    "fields": {
+      "name": "Blue",
+      "hex_code": "#0000FF"
+    }
+  },
+  {
+    "model": "metal_api.color",
+    "pk": "green",
+    "fields": {
+      "name": "Green",
+      "hex_code": "#008000"
+    }
+  },
+  {
+    "model": "metal_api.color",
+    "pk": "yellow",
+    "fields": {
+      "name": "Yellow",
+      "hex_code": "#FFFF00"
+    }
+  }
+]

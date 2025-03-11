@@ -1,48 +1,94 @@
-# serializers.py
+# metal_designer/serializers.py
 from rest_framework import serializers
-from .models import MetalDesign, PriceQuote
+from .models import Material, ShapeTemplate, Coating, Color, MetalDesign
 
 
-class MetalDesignSerializer(serializers.ModelSerializer):
-    features = serializers.JSONField(required=False)
+class MaterialSerializer(serializers.ModelSerializer):
+    """Serializer for Material model."""
+    class Meta:
+        model = Material
+        fields = '__all__'
+
+
+class ShapeTemplateSerializer(serializers.ModelSerializer):
+    """Serializer for ShapeTemplate model."""
+    class Meta:
+        model = ShapeTemplate
+        fields = '__all__'
+
+
+class ColorSerializer(serializers.ModelSerializer):
+    """Serializer for Color model."""
+    class Meta:
+        model = Color
+        fields = '__all__'
+
+
+class CoatingSerializer(serializers.ModelSerializer):
+    """Serializer for Coating model."""
+    compatible_materials = MaterialSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Coating
+        fields = '__all__'
+
+
+class MetalDesignCreateSerializer(serializers.ModelSerializer):
+    """Serializer for creating a new metal design."""
+    material_id = serializers.CharField(write_only=True)
+    shape_template_id = serializers.CharField(write_only=True)
+    coating_id = serializers.CharField(
+        write_only=True, required=False, allow_null=True)
+    color_id = serializers.CharField(
+        write_only=True, required=False, allow_null=True)
 
     class Meta:
         model = MetalDesign
         fields = [
-            'id', 'name', 'created_at', 'updated_at',
-            'width', 'height', 'depth',
-            'material', 'thickness', 'finish',
-            'shape', 'custom_path', 'features',
-            'notes', 'svg_preview', 'status',
-            'price', 'quote_notes', 'quoted_at'
+            'material_id', 'shape_template_id', 'shape_dimensions',
+            'cutouts', 'coating_id', 'color_id', 'notes'
         ]
-        read_only_fields = ['id', 'created_at', 'updated_at',
-                            'status', 'price', 'quote_notes', 'quoted_at']
 
     def create(self, validated_data):
-        features_data = validated_data.pop('features', None)
-        design = MetalDesign.objects.create(**validated_data)
+        material_id = validated_data.pop('material_id')
+        shape_template_id = validated_data.pop('shape_template_id')
+        coating_id = validated_data.pop('coating_id', None)
+        color_id = validated_data.pop('color_id', None)
 
-        if features_data:
-            design.features = features_data
+        # Get related objects
+        material = Material.objects.get(id=material_id)
+        shape_template = ShapeTemplate.objects.get(id=shape_template_id)
+        coating = Coating.objects.get(id=coating_id) if coating_id else None
+        color = Color.objects.get(id=color_id) if color_id else None
+
+        # Create the design
+        design = MetalDesign.objects.create(
+            material=material,
+            shape_template=shape_template,
+            coating=coating,
+            color=color,
+            **validated_data
+        )
+
+        # Associate with the current user if authenticated
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            design.user = request.user
             design.save()
 
         return design
 
-    def update(self, instance, validated_data):
-        if 'features' in validated_data:
-            instance.features = validated_data.pop('features')
 
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
+class MetalDesignDetailSerializer(serializers.ModelSerializer):
+    """Serializer for retrieving metal design details."""
+    material = MaterialSerializer(read_only=True)
+    shape_template = ShapeTemplateSerializer(read_only=True)
+    coating = CoatingSerializer(read_only=True)
+    color = ColorSerializer(read_only=True)
+    dimensions_display = serializers.ReadOnlyField(
+        source='get_dimensions_display')
+    cutout_count = serializers.ReadOnlyField()
 
-        instance.save()
-        return instance
-
-
-class PriceQuoteSerializer(serializers.ModelSerializer):
     class Meta:
-        model = PriceQuote
-        fields = ['id', 'design', 'created_at', 'price',
-                  'estimated_production_days', 'notes', 'is_current']
-        read_only_fields = ['id', 'created_at']
+        model = MetalDesign
+        fields = '__all__'

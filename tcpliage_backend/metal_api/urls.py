@@ -1,29 +1,16 @@
-# metal_api/urls.py (App-level URLs)
-from django.urls import path
+# metal_designer/urls.py
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 from . import views
 
-app_name = 'metal_api'
+router = DefaultRouter()
+router.register(r'materials', views.MaterialViewSet)
+router.register(r'shape-templates', views.ShapeTemplateViewSet)
+router.register(r'coatings', views.CoatingViewSet)
+router.register(r'colors', views.ColorViewSet)
+router.register(r'metal-designs', views.MetalDesignViewSet,
+                basename='metal-designs')
 
 urlpatterns = [
-    # Shape endpoints
-    path('shapes/', 
-         views.get_shapes, 
-         name='shapes-list'),
-    
-    path('shapes/<str:shape_id>/config/', 
-         views.get_shape_config, 
-         name='shape-config'),
-    
-    # Design endpoints
-    path('designs/', 
-         views.save_design, 
-         name='save-design'),
-    
-    path('designs/<int:design_id>/', 
-         views.get_design, 
-         name='get-design'),
-    
-    path('validate-design/', 
-         views.validate_design, 
-         name='validate-design'),
+    path('', include(router.urls)),
 ]
