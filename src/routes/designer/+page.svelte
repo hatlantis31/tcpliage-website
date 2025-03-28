@@ -1,186 +1,309 @@
-<!-- src/routes/designer/+page.svelte -->
+// src/routes/designer/+page.svelte
 <script>
   import { onMount } from 'svelte';
-  import MaterialSelector from '$lib/components/steps/MaterialSelector.svelte';
-  import ShapeSelector from '$lib/components/steps/ShapeSelector.svelte';
-  import ShapeEditor from '$lib/components/steps/ShapeEditor.svelte';
-  import CoatingSelector from '$lib/components/steps/CoatingSelector.svelte';
-  import DesignSummary from '$lib/components/steps/DesignSummary.svelte';
-  import { v4 as uuidv4 } from 'uuid';
+  import { goto } from '$app/navigation';
   
-  // State for the entire design process
-  let currentStep = 1;
-  let design = {
-    id: uuidv4(),
-    material: null,
-    shape: null,
-    cutouts: [],
-    coating: null,
-    created_at: new Date().toISOString()
-  };
+  // Import our utility modules
+  import { designStore } from '$lib/stores/designStore.js';
+  import metalApiService from '$lib/services/metalApiService.js';
+  import { validateDesign } from '$lib/utils/validationUtils.js';
+  import '$lib/styles/metal-designer.css';
   
-  // Submission state
-  let isSubmitting = false;
-  let submitSuccess = null;
-  let submitError = null;
+  // Import step components
+  import PartTypeStep from '$lib/components/steps/PartTypeStep.svelte';
+  import DimensionsStep from '$lib/components/steps/DimensionsStep.svelte';
+  import HolesStep from '$lib/components/steps/HolesStep.svelte';
+  import MaterialStep from '$lib/components/steps/MaterialStep.svelte';
+  import ReviewStep from '$lib/components/steps/ReviewStep.svelte';
   
-  // Step definitions
+  // Step configuration
   const steps = [
-    { id: 1, name: 'Material', component: MaterialSelector },
-    { id: 2, name: 'Shape', component: ShapeSelector },
-    { id: 3, name: 'Customize', component: ShapeEditor },
-    { id: 4, name: 'Coating', component: CoatingSelector },
-    { id: 5, name: 'Summary', component: DesignSummary }
+    { id: 'part-type', title: 'Select Part Type', component: PartTypeStep },
+    { id: 'dimensions', title: 'Configure Dimensions', component: DimensionsStep },
+    { id: 'holes', title: 'Add Holes (Optional)', component: HolesStep },
+    { id: 'material', title: 'Material & Finish', component: MaterialStep },
+    { id: 'review', title: 'Review & Submit', component: ReviewStep }
   ];
   
+  // Track current step
+  let currentStepIndex = 0;
+  
+  // Reactively bind to the design store
+  let design;
+  const unsubscribe = designStore.subscribe(value => {
+    design = value;
+  });
+  
+  // Clean up subscription when component is destroyed
+  onMount(() => {
+    return () => {
+      unsubscribe();
+    };
+  });
+  
+  // Message handling
+  let message = null;
+  let messageType = 'is-info';
+  let isSubmitting = false;
+  
+  function showMessage(text, type = 'is-info') {
+    message = text;
+    messageType = type;
+    setTimeout(() => {
+      message = null;
+    }, 5000);
+  }
+  
   // Navigation functions
-  function goToStep(step) {
-    if (step < 1) step = 1;
-    if (step > steps.length) step = steps.length;
-    currentStep = step;
-  }
-  
   function nextStep() {
-    goToStep(currentStep + 1);
-  }
-  
-  function prevStep() {
-    goToStep(currentStep - 1);
-  }
-  
-  // Handle updating design from child components
-  function updateDesign(event) {
-    const { field, value } = event.detail;
-    design[field] = value;
-  }
-  
-  // Validate current step before proceeding
-  function validateCurrentStep() {
-    switch (currentStep) {
-      case 1: // Material
-        return !!design.material;
-      case 2: // Shape
-        return !!design.shape && !!design.shape.dimensions;
-      case 3: // Customize (always valid)
-        return true;
-      case 4: // Coating
-        return !!design.coating;
-      default:
-        return true;
+    if (validateCurrentStep()) {
+      if (currentStepIndex < steps.length - 1) {
+        currentStepIndex++;
+      }
     }
   }
   
-  // Submit the design to the backend
+  function previousStep() {
+    if (currentStepIndex > 0) {
+      currentStepIndex--;
+    }
+  }
+  
+  function goToStep(index) {
+    // Only allow going to a step if all previous steps are valid
+    if (index < currentStepIndex || validateStepsUpTo(index)) {
+      currentStepIndex = index;
+    } else {
+      showMessage('Please complete the current step before proceeding', 'is-warning');
+    }
+  }
+  
+  // Validation using our validation utility
+  function validateCurrentStep() {
+    const stepId = steps[currentStepIndex].id;
+    
+    // Use the validation utility to check the current step
+    const result = validateStep(currentStepIndex);
+    
+    if (!result.isValid) {
+      showMessage(result.message, 'is-warning');
+    }
+    
+    return result.isValid;
+  }
+  
+  function validateStep(stepIndex) {
+    const stepId = steps[stepIndex].id;
+    
+    switch(stepId) {
+      case 'part-type':
+        if (!design.partType) {
+          return { isValid: false, message: 'Please select a part type' };
+        }
+        return { isValid: true };
+      
+      case 'dimensions':
+        if (!design.dimensions || Object.keys(design.dimensions).length === 0) {
+          return { isValid: false, message: 'Please configure dimensions' };
+        }
+        
+        // Check specific dimensions based on part type
+        const dims = design.dimensions;
+        switch(design.partType) {
+          case 'rectangle':
+            if (!dims.width || !dims.height) {
+              return { isValid: false, message: 'Please specify width and height' };
+            }
+            break;
+          case 'lShape':
+            if (!dims.width || !dims.height || !dims.legWidth) {
+              return { isValid: false, message: 'Please specify all L-shape dimensions' };
+            }
+            break;
+          case 'uShape':
+            if (!dims.width || !dims.height || !dims.legWidth || !dims.flangeHeight) {
+              return { isValid: false, message: 'Please specify all U-shape dimensions' };
+            }
+            break;
+          case 'circle':
+            if (!dims.diameter) {
+              return { isValid: false, message: 'Please specify the diameter' };
+            }
+            break;
+        }
+        return { isValid: true };
+      
+      case 'holes':
+        // Holes are optional
+        return { isValid: true };
+      
+      case 'material':
+        if (!design.material || !design.thickness) {
+          return { isValid: false, message: 'Please select material and thickness' };
+        }
+        
+        // Validate finish for material
+        if (design.finish === 'anodized' && design.material !== 'aluminum') {
+          return { isValid: false, message: 'Anodizing is only available for aluminum' };
+        }
+        return { isValid: true };
+      
+      default:
+        return { isValid: true };
+    }
+  }
+  
+  function validateStepsUpTo(index) {
+    for (let i = 0; i <= index; i++) {
+      const result = validateStep(i);
+      if (!result.isValid) {
+        return false;
+      }
+    }
+    return true;
+  }
+  
+  // Update design data from child components by using store
+  function handleUpdate(event) {
+    const { field, value } = event.detail;
+    designStore.updateField(field, value);
+  }
+  
+  // JSON Export/Import
+  function exportDesign() {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(designStore.exportDesign());
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", `metal-design-${design.id}.json`);
+    document.body.appendChild(downloadAnchorNode);
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+    
+    showMessage('Design exported successfully', 'is-success');
+  }
+  
+  let importInput;
+  
+  function triggerImportDialog() {
+    importInput.click();
+  }
+  
+  function handleImportFile(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const importedDesign = JSON.parse(e.target.result);
+        designStore.loadDesign(importedDesign);
+        showMessage('Design imported successfully', 'is-success');
+        // Go to first step to validate all data
+        currentStepIndex = 0;
+      } catch (error) {
+        showMessage('Error importing design: Invalid JSON file', 'is-danger');
+      }
+    };
+    reader.readAsText(file);
+  }
+  
+  // Submit the design to the API
   async function submitDesign() {
     try {
       isSubmitting = true;
-      submitSuccess = null;
-      submitError = null;
       
-      // Prepare data for submission
-      const designData = {
-        material_id: design.material?.id,
-        shape_template_id: design.shape?.id,
-        shape_dimensions: design.shape?.dimensions,
-        cutouts: design.cutouts,
-        coating_id: design.coating?.id,
-        color_id: design.coating?.color?.id,
-        notes: ''
-      };
+      // Validate the entire design before submitting
+      const validationResult = validateDesign(design);
+      if (!validationResult.isValid) {
+        // Show the first error message
+        const firstError = Object.values(validationResult.errors)[0];
+        showMessage(`Validation error: ${firstError}`, 'is-danger');
+        isSubmitting = false;
+        return;
+      }
       
-      const response = await fetch('/api/metal-piece/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(designData)
-      });
+      // Submit to API service
+      const result = await metalApiService.submitDesign(design);
       
-      if (response.ok) {
-        const result = await response.json();
-        submitSuccess = 'Design submitted successfully! You will receive a price quote soon.';
-        // Clear or reset the design
-        // design = { id: uuidv4(), material: null, shape: null, cutouts: [], coating: null };
+      if (result.success) {
+        // Redirect to success page with reference number and estimated cost/time
+        goto(`/designer/success?ref=${result.referenceNumber}&cost=${result.estimatedCost}&days=${result.estimatedProductionDays}`);
       } else {
-        const errorData = await response.json();
-        submitError = errorData.error || 'Error submitting design. Please try again.';
+        throw new Error(result.message || 'Error submitting design');
       }
     } catch (error) {
-      console.error('Error submitting design:', error);
-      submitError = 'Error connecting to server. Please try again later.';
-    } finally {
+      showMessage('Error submitting design: ' + error.message, 'is-danger');
       isSubmitting = false;
     }
   }
-  
-  // Check if we can proceed to the next step
-  $: canProceed = validateCurrentStep();
 </script>
 
 <div class="container">
-  <h1 class="title is-2 has-text-centered my-5">Custom Metal Piece Designer</h1>
-  
-  <!-- Progress bar -->
-  <div class="columns">
-    <div class="column is-10 is-offset-1">
-      <progress class="progress is-primary" value={currentStep} max={steps.length}></progress>
-      
-      <div class="steps-indicator">
-        {#each steps as step}
-          <div class="step-item {currentStep >= step.id ? 'is-active' : ''}">
-            <div class="step-marker">{step.id}</div>
-            <div class="step-details">{step.name}</div>
-          </div>
-        {/each}
+  <div class="section">
+    <h1 class="title has-text-centered">Metal Part Designer</h1>
+    <p class="subtitle has-text-centered">Design custom metal parts with precise specifications</p>
+    
+    <!-- Message display -->
+    {#if message}
+      <div class="notification {messageType}">
+        <button class="delete" on:click={() => message = null}></button>
+        {message}
       </div>
+    {/if}
+    
+    <!-- Import/Export buttons -->
+    <div class="buttons is-centered mb-5">
+      <button class="button is-info is-small" on:click={exportDesign}>
+        <span class="icon">
+          <i class="fas fa-download"></i>
+        </span>
+        <span>Export Design</span>
+      </button>
+      
+      <button class="button is-info is-small" on:click={triggerImportDialog}>
+        <span class="icon">
+          <i class="fas fa-upload"></i>
+        </span>
+        <span>Import Design</span>
+      </button>
+      <input 
+        bind:this={importInput}
+        type="file" 
+        accept=".json" 
+        on:change={handleImportFile} 
+        style="display: none;"
+      />
     </div>
-  </div>
-  
-  <!-- Current step component -->
-  <div class="columns">
-    <div class="column is-10 is-offset-1">
-      <div class="box p-5">
-        <svelte:component 
-          this={steps[currentStep - 1].component} 
-          {design}
-          on:update={updateDesign}
-        />
-      </div>
-      
-      <!-- Display validation warnings -->
-      {#if !canProceed && currentStep < steps.length}
-        <div class="notification is-warning mt-3">
-          <p>
-            {#if currentStep === 1}
-              Please select a material to continue.
-            {:else if currentStep === 2}
-              Please specify a shape and its dimensions to continue.
-            {:else if currentStep === 4}
-              Please select a coating to continue.
-            {:else}
-              Please complete this step before continuing.
-            {/if}
-          </p>
+    
+    <!-- Progress tracker -->
+    <div class="steps is-centered mb-5">
+      {#each steps as step, index}
+        <div 
+          class="step-item {index <= currentStepIndex ? 'is-active' : ''} {index < currentStepIndex ? 'is-completed' : ''}"
+          on:click={() => goToStep(index)}
+        >
+          <div class="step-marker">{index + 1}</div>
+          <div class="step-details">
+            <p class="step-title">{step.title}</p>
+          </div>
         </div>
-      {/if}
+      {/each}
+    </div>
+    
+    <!-- Current step -->
+    <div class="box">
+      <h2 class="title is-4">{steps[currentStepIndex].title}</h2>
       
-      <!-- Submission messages -->
-      {#if submitSuccess}
-        <div class="notification is-success mt-3">
-          <p>{submitSuccess}</p>
-        </div>
-      {/if}
-      
-      {#if submitError}
-        <div class="notification is-danger mt-3">
-          <p>{submitError}</p>
-        </div>
-      {/if}
+      <svelte:component 
+        this={steps[currentStepIndex].component} 
+        {design}
+        on:update={handleUpdate}
+      />
       
       <!-- Navigation buttons -->
-      <div class="buttons is-centered mt-4">
-        {#if currentStep > 1}
-          <button class="button is-medium" on:click={prevStep}>
+      <div class="buttons is-centered mt-5">
+        {#if currentStepIndex > 0}
+          <button class="button" on:click={previousStep}>
             <span class="icon">
               <i class="fas fa-arrow-left"></i>
             </span>
@@ -188,110 +311,76 @@
           </button>
         {/if}
         
-        {#if currentStep < steps.length}
-          <button 
-            class="button is-primary is-medium" 
-            on:click={nextStep}
-            disabled={!canProceed}
-          >
+        {#if currentStepIndex < steps.length - 1}
+          <button class="button is-primary" on:click={nextStep}>
             <span>Next</span>
             <span class="icon">
               <i class="fas fa-arrow-right"></i>
             </span>
           </button>
         {:else}
-          <button 
-            class="button is-success is-medium" 
-            on:click={submitDesign}
-            disabled={isSubmitting}
-          >
+          <button class="button is-success" on:click={submitDesign}>
             <span class="icon">
               <i class="fas fa-check"></i>
             </span>
-            <span>{isSubmitting ? 'Submitting...' : 'Submit Design'}</span>
+            <span>Submit Design</span>
           </button>
         {/if}
       </div>
     </div>
   </div>
-  
-  <!-- Design overview -->
-  {#if currentStep > 1}
-    <div class="columns mt-5">
-      <div class="column is-8 is-offset-2">
-        <div class="box">
-          <h3 class="title is-5">Design Overview</h3>
-          <div class="columns">
-            <div class="column is-4">
-              <div class="has-text-weight-bold">Material</div>
-              <p>{design.material?.name || 'Not selected'}</p>
-            </div>
-            <div class="column is-4">
-              <div class="has-text-weight-bold">Shape</div>
-              <p>
-                {#if design.shape}
-                  {design.shape.name} 
-                  {#if design.shape.dimensions}
-                    {#if design.shape.id === 'circle'}
-                      (Ø{design.shape.dimensions.diameter}mm)
-                    {:else}
-                      ({design.shape.dimensions.width}×{design.shape.dimensions.height}mm)
-                    {/if}
-                  {/if}
-                {:else}
-                  Not selected
-                {/if}
-              </p>
-            </div>
-            <div class="column is-4">
-              <div class="has-text-weight-bold">Cutouts & Coating</div>
-              <p>{design.cutouts?.length || 0} cutouts, {design.coating?.name || 'No coating'}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  {/if}
 </div>
 
 <style>
-  .steps-indicator {
+  /* Custom styles for step navigation */
+  .steps {
     display: flex;
-    justify-content: space-between;
-    margin: 1rem 0;
+    position: relative;
   }
-  
+  .steps::before {
+    content: '';
+    position: absolute;
+    top: 14px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: #dbdbdb;
+    z-index: 0;
+  }
   .step-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
     flex: 1;
+    text-align: center;
+    padding: 0 1rem;
+    cursor: pointer;
   }
-  
   .step-marker {
     width: 30px;
     height: 30px;
     border-radius: 50%;
     background-color: #dbdbdb;
-    display: flex;
+    display: inline-flex;
     justify-content: center;
     align-items: center;
     color: white;
-    font-weight: bold;
+    position: relative;
+    z-index: 1;
+    transition: all 0.3s;
   }
-  
-  .step-item.is-active .step-marker {
-    background-color: #00d1b2;
-  }
-  
   .step-details {
     margin-top: 0.5rem;
-    font-size: 0.85rem;
-    color: #4a4a4a;
   }
-  
-  .step-item.is-active .step-details {
-    font-weight: bold;
+  .step-title {
+    font-size: 0.9rem;
+    color: #7a7a7a;
+  }
+  .step-item.is-active .step-marker {
+    background-color: #3273dc;
+  }
+  .step-item.is-active .step-title {
     color: #363636;
+    font-weight: 600;
+  }
+  .step-item.is-completed .step-marker {
+    background-color: #48c774;
   }
 </style>
