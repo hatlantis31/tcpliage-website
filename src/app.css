@@ -1,19 +1,78 @@
+/* Add these styles to your src/app.css file */
+
+/* Force light theme and prevent system theme override */
 :root {
-    --primary-color: #363636;
-    --secondary-color: #209cee;
-  }
-  
-  .card {
-    transition: transform 0.3s ease;
-  }
-  
-  .card:hover {
-    transform: translateY(-5px);
-  }
-  
-  .hero {
-    background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/hero-background.jpg');
-    background-size: cover;
-    background-position: center;
-  }
-  
+  color-scheme: light only;
+  --primary-color: #363636;
+  --secondary-color: #209cee;
+  --background-color: #ffffff;
+  --text-color: #4a4a4a;
+  --card-background: #ffffff;
+  --hero-text-color: #ffffff;
+  --notification-background: #f5f5f5;
+  --border-color: #e0e0e0;
+  --box-shadow-color: rgba(0, 0, 0, 0.1);
+  --hover-color: #f8f8f8;
+}
+
+/* Set default background and text colors */
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+/* Ensure cards have white background */
+.card, .box {
+  background-color: var(--card-background);
+  box-shadow: 0 2px 8px var(--box-shadow-color);
+}
+
+/* Make sure footer has light background */
+.footer {
+  background-color: #f5f5f5 !important;
+  color: var(--text-color);
+}
+
+/* Ensure consistent hero text colors */
+.hero.is-dark {
+  color: var(--hero-text-color);
+}
+
+/* Force light theme for text inputs */
+.input, .textarea, .select select {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  border-color: var(--border-color);
+}
+
+/* Force white background for all forms and inputs */
+input, textarea, select {
+  background-color: var(--background-color) !important;
+  color: var(--text-color) !important;
+}
+
+/* Make notification backgrounds light */
+.notification {
+  background-color: var(--notification-background);
+}
+
+/* Force light theme for tables */
+.table {
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+/* Force light theme for tabs */
+.tabs a {
+  color: var(--text-color);
+}
+
+/* Hover states for interactive elements */
+.card:hover, .box:hover {
+  box-shadow: 0 4px 12px var(--box-shadow-color);
+}
+
+/* The dark overlay for hero sections should remain dark */
+.hero-body {
+  background-color: transparent !important;
+}

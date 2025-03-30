@@ -39,7 +39,7 @@
     </div>
   </div>
 {:else}
-  <div class="card">
+  <div class="card light-theme-card">
     <div class="card-image">
       <figure class="image is-4by3">
         <img src={displayImage} alt={displayTitle}>
@@ -57,10 +57,19 @@
     transition: transform 0.3s ease;
     border-radius: 8px;
     overflow: hidden;
+    background-color: #ffffff !important;
+    color: #4a4a4a !important;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
   }
 
   .service-box:hover {
     transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  }
+  
+  .light-theme-card {
+    background-color: #ffffff !important;
+    color: #4a4a4a !important;
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
   }
 
@@ -71,5 +80,16 @@
 
   .buttons {
     margin-top: 1.5rem;
+  }
+  
+  /* Ensure text is readable */
+  :global(.service-box h3, .service-box p, .service-box li) {
+    color: #4a4a4a !important;
+  }
+  
+  /* Ensure light theme for card content */
+  :global(.card-content) {
+    background-color: #ffffff !important;
+    color: #4a4a4a !important;
   }
 </style>

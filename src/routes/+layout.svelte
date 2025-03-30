@@ -5,6 +5,14 @@
   import Footer from '$lib/components/Footer.svelte';
   import '../app.css';
 </script>
+<!-- Force light theme by adding class to HTML element -->
+<svelte:head>
+  <script>
+    // Force light theme regardless of system preferences
+    document.documentElement.classList.add('light-theme');
+    document.documentElement.style.colorScheme = 'light';
+  </script>
+</svelte:head>
 
 <Header />
 

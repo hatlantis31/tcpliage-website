@@ -402,146 +402,201 @@
 
 <style>
   .contact-form {
-    position: relative;
+  position: relative;
+  background-color: #ffffff;
+}
+
+.required {
+  color: #E53935;
+}
+
+.label {
+  font-weight: 600;
+  color: #363636 !important;
+}
+
+.urgency-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.urgency-option {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.urgency-option input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.urgency-label {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  width: 100%;
+  background-color: #f5f5f5;
+  color: #4a4a4a !important;
+}
+
+.urgency-label.is-info {
+  background-color: rgba(32, 156, 238, 0.1);
+  color: #209cee !important;
+}
+
+.urgency-label.is-warning {
+  background-color: rgba(255, 221, 87, 0.1);
+  color: #ffbe00 !important;
+}
+
+.urgency-label.is-danger {
+  background-color: rgba(229, 57, 53, 0.1);
+  color: #E53935 !important;
+}
+
+.urgency-option input:checked + .urgency-label {
+  box-shadow: 0 0 0 2px currentColor;
+  font-weight: 600;
+}
+
+.urgency-option:hover .urgency-label {
+  background-color: #f0f0f0;
+}
+
+.urgency-option:hover .urgency-label.is-info {
+  background-color: rgba(32, 156, 238, 0.15);
+}
+
+.urgency-option:hover .urgency-label.is-warning {
+  background-color: rgba(255, 221, 87, 0.15);
+}
+
+.urgency-option:hover .urgency-label.is-danger {
+  background-color: rgba(229, 57, 53, 0.15);
+}
+
+.urgency-label .icon {
+  margin-right: 0.5rem;
+}
+
+.file.has-name .file-name {
+  max-width: none;
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+  background-color: #ffffff !important;
+  color: #4a4a4a !important;
+}
+
+.submit-button {
+  min-width: 150px;
+}
+
+/* Animation for notifications */
+.notification {
+  animation: slideInDown 0.3s ease-out;
+  background-color: #ffffff !important;
+}
+
+.notification.is-danger {
+  background-color: #fff5f5 !important;
+  color: #cd0930 !important;
+}
+
+.notification.is-success {
+  background-color: #f0fff4 !important;
+  color: #257942 !important;
+}
+
+.notification.is-warning {
+  background-color: #fffbeb !important;
+  color: #947600 !important;
+}
+
+.notification.is-info {
+  background-color: #f6f9fe !important;
+  color: #2160c4 !important;
+}
+
+@keyframes slideInDown {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Input focus effects */
+.input:focus, .textarea:focus, .select select:focus {
+  box-shadow: 0 0 0 2px rgba(229, 57, 53, 0.2);
+  border-color: #E53935;
+  background-color: #ffffff !important;
+  color: #4a4a4a !important;
+}
+
+.input, .textarea, .select select {
+  background-color: #ffffff !important;
+  color: #4a4a4a !important;
+  border-color: #dbdbdb;
+}
+
+/* Error styling */
+.input.is-danger, .textarea.is-danger {
+  animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+  border-color: #ff3860;
+  background-color: #ffffff !important;
+  color: #4a4a4a !important;
+}
+
+@keyframes shake {
+  10%, 90% {
+    transform: translateX(-1px);
   }
   
-  .required {
-    color: #E53935;
+  20%, 80% {
+    transform: translateX(2px);
   }
   
-  .label {
-    font-weight: 600;
-    color: #363636;
+  30%, 50%, 70% {
+    transform: translateX(-3px);
   }
   
+  40%, 60% {
+    transform: translateX(3px);
+  }
+}
+
+/* Force light theme on all form elements */
+.checkbox, 
+.radio, 
+.file-label, 
+.file-name,
+.help {
+  color: #4a4a4a !important;
+}
+
+.help.is-danger {
+  color: #ff3860 !important;
+}
+
+/* Ensure light background on file selection */
+.file-cta {
+  background-color: #f5f5f5 !important;
+  color: #4a4a4a !important;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 768px) {
   .urgency-selector {
-    display: flex;
-    flex-direction: column;
     gap: 0.5rem;
   }
-  
-  .urgency-option {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-  }
-  
-  .urgency-option input {
-    position: absolute;
-    opacity: 0;
-    width: 0;
-    height: 0;
-  }
-  
-  .urgency-label {
-    display: flex;
-    align-items: center;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    transition: all 0.2s ease;
-    width: 100%;
-    background-color: #f5f5f5;
-  }
-  
-  .urgency-label.is-info {
-    background-color: rgba(32, 156, 238, 0.1);
-    color: #209cee;
-  }
-  
-  .urgency-label.is-warning {
-    background-color: rgba(255, 221, 87, 0.1);
-    color: #ffbe00;
-  }
-  
-  .urgency-label.is-danger {
-    background-color: rgba(229, 57, 53, 0.1);
-    color: #E53935;
-  }
-  
-  .urgency-option input:checked + .urgency-label {
-    box-shadow: 0 0 0 2px currentColor;
-    font-weight: 600;
-  }
-  
-  .urgency-option:hover .urgency-label {
-    background-color: #f0f0f0;
-  }
-  
-  .urgency-option:hover .urgency-label.is-info {
-    background-color: rgba(32, 156, 238, 0.15);
-  }
-  
-  .urgency-option:hover .urgency-label.is-warning {
-    background-color: rgba(255, 221, 87, 0.15);
-  }
-  
-  .urgency-option:hover .urgency-label.is-danger {
-    background-color: rgba(229, 57, 53, 0.15);
-  }
-  
-  .urgency-label .icon {
-    margin-right: 0.5rem;
-  }
-  
-  .file.has-name .file-name {
-    max-width: none;
-    border-top-right-radius: 4px;
-    border-bottom-right-radius: 4px;
-  }
-  
-  .submit-button {
-    min-width: 150px;
-  }
-  
-  /* Animation for notifications */
-  .notification {
-    animation: slideInDown 0.3s ease-out;
-  }
-  
-  @keyframes slideInDown {
-    from {
-      transform: translateY(-20px);
-      opacity: 0;
-    }
-    to {
-      transform: translateY(0);
-      opacity: 1;
-    }
-  }
-  
-  /* Input focus effects */
-  .input:focus, .textarea:focus, .select select:focus {
-    box-shadow: 0 0 0 2px rgba(229, 57, 53, 0.2);
-    border-color: #E53935;
-  }
-  
-  /* Error styling */
-  .input.is-danger, .textarea.is-danger {
-    animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
-  }
-  
-  @keyframes shake {
-    10%, 90% {
-      transform: translateX(-1px);
-    }
-    
-    20%, 80% {
-      transform: translateX(2px);
-    }
-    
-    30%, 50%, 70% {
-      transform: translateX(-3px);
-    }
-    
-    40%, 60% {
-      transform: translateX(3px);
-    }
-  }
-  
-  /* Responsive adjustments */
-  @media screen and (max-width: 768px) {
-    .urgency-selector {
-      gap: 0.5rem;
-    }
-  }
+}
 </style>

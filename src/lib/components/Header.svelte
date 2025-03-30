@@ -16,7 +16,7 @@
   });
 </script>
 
-<nav class="navbar {isScrolled ? 'is-fixed-top is-scrolled' : ''}" role="navigation" aria-label="menu principal">
+<nav class="navbar light-theme-navbar {isScrolled ? 'is-fixed-top is-scrolled' : ''}" role="navigation" aria-label="menu principal">
   <div class="container">
     <div class="navbar-brand">
       <a class="navbar-item" href="/">
@@ -42,7 +42,7 @@
       </a>
     </div>
 
-    <div class="navbar-menu {isActive ? 'is-active' : ''}">
+    <div class="navbar-menu light-theme-menu {isActive ? 'is-active' : ''}">
       <div class="navbar-end">
         <a class="navbar-item" href="/">Accueil</a>
         <a class="navbar-item" href="/services">Services</a>
@@ -65,10 +65,14 @@
 </nav>
 
 <style>
-  .navbar {
+  .light-theme-navbar {
     background-color: rgba(255, 255, 255, 0.95) !important;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
+  }
+  
+  .light-theme-menu {
+    background-color: white !important;
   }
   
   .is-scrolled {
