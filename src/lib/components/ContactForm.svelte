@@ -16,6 +16,7 @@
   let errorMessage = '';
   let formValid = false;
   let formFields = {};
+  let fileLabel = 'Choisir un fichier';
   
   // Form field validation
   let validation = {
@@ -27,9 +28,9 @@
   
   // Urgency levels
   const urgencyLevels = [
-    { value: 'normal', label: 'Normal (3-5 jours)', color: 'is-info' },
-    { value: 'urgent', label: 'Urgent (24-48h)', color: 'is-warning' },
-    { value: 'emergency', label: 'Très urgent (24h)', color: 'is-danger' }
+    { value: 'normal', label: 'Normal (3-5 jours)', icon: 'clock', color: 'is-info' },
+    { value: 'urgent', label: 'Urgent (24-48h)', icon: 'exclamation', color: 'is-warning' },
+    { value: 'emergency', label: 'Très urgent (24h)', icon: 'exclamation-triangle', color: 'is-danger' }
   ];
   
   // Contact subjects
@@ -46,6 +47,14 @@
     Object.keys(validation).forEach(key => {
       formFields[key] = document.getElementById(key);
     });
+    
+    // Check if there's a service parameter in the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const serviceParam = urlParams.get('service');
+    
+    if (serviceParam) {
+      formData.sujet = `Demande de devis - ${serviceParam}`;
+    }
   });
   
   // Validate email format
@@ -105,6 +114,9 @@
     const file = event.target.files[0];
     if (file) {
       formData.fichier = file;
+      fileLabel = file.name;
+    } else {
+      fileLabel = 'Choisir un fichier';
     }
   }
   
@@ -153,6 +165,7 @@
           }
         });
         
+        fileLabel = 'Choisir un fichier';
         formValid = false;
         submitStatus = null;
       }, 3000);
@@ -165,438 +178,505 @@
   }
 </script>
 
-<form class="contact-form" on:submit|preventDefault={handleSubmit}>
-  <!-- Form Status Messages -->
+<div class="contact-form-container">
   {#if submitStatus === 'success'}
-    <div class="notification is-success">
-      <button class="delete" on:click={() => submitStatus = null}></button>
-      <p>
-        <span class="icon"><i class="fas fa-check-circle"></i></span>
-        <span>Votre message a été envoyé avec succès ! Nous vous répondrons dans les plus brefs délais.</span>
-      </p>
+    <div class="form-success">
+      <div class="success-icon">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <h3>Message Envoyé!</h3>
+      <p>Votre message a été envoyé avec succès. Nous vous répondrons dans les plus brefs délais.</p>
     </div>
-  {:else if submitStatus === 'error'}
-    <div class="notification is-danger">
-      <button class="delete" on:click={() => submitStatus = null}></button>
-      <p>
-        <span class="icon"><i class="fas fa-exclamation-triangle"></i></span>
-        <span>{errorMessage}</span>
-      </p>
-    </div>
-  {/if}
-  
-  <div class="columns is-multiline">
-    <!-- Left Column -->
-    <div class="column is-6">
-      <!-- Name Field -->
-      <div class="field">
-        <label class="label">Nom <span class="required">*</span></label>
-        <div class="control has-icons-left">
-          <input 
-            id="nom"
-            class="input" 
-            type="text" 
-            placeholder="Votre nom et prénom"
-            bind:value={formData.nom}
-            on:input={() => handleInput('nom')}
-            on:focus={() => handleFocus('nom')}
-            on:blur={() => handleBlur('nom')}
-            required
-          >
-          <span class="icon is-small is-left">
-            <i class="fas fa-user"></i>
-          </span>
+  {:else}
+    <form class="contact-form" on:submit|preventDefault={handleSubmit}>
+      <!-- Form Status Messages -->
+      {#if submitStatus === 'error'}
+        <div class="notification is-danger">
+          <button class="delete" on:click={() => submitStatus = null}></button>
+          <p>
+            <span class="icon"><i class="fas fa-exclamation-triangle"></i></span>
+            <span>{errorMessage}</span>
+          </p>
         </div>
-        {#if !validation.nom.valid && formData.nom !== ''}
-          <p class="help is-danger">{validation.nom.message}</p>
-        {/if}
-      </div>
+      {/if}
       
-      <!-- Email Field -->
-      <div class="field">
-        <label class="label">Email <span class="required">*</span></label>
-        <div class="control has-icons-left">
-          <input 
-            id="email"
-            class="input" 
-            type="email" 
-            placeholder="Votre adresse email"
-            bind:value={formData.email}
-            on:input={() => handleInput('email')}
-            on:focus={() => handleFocus('email')}
-            on:blur={() => handleBlur('email')}
-            required
-          >
-          <span class="icon is-small is-left">
-            <i class="fas fa-envelope"></i>
-          </span>
-        </div>
-        {#if !validation.email.valid && formData.email !== ''}
-          <p class="help is-danger">{validation.email.message}</p>
-        {/if}
-      </div>
-      
-      <!-- Phone Field -->
-      <div class="field">
-        <label class="label">Téléphone <span class="required">*</span></label>
-        <div class="control has-icons-left">
-          <input 
-            id="telephone"
-            class="input" 
-            type="tel" 
-            placeholder="Votre numéro de téléphone"
-            bind:value={formData.telephone}
-            on:input={() => handleInput('telephone')}
-            on:focus={() => handleFocus('telephone')}
-            on:blur={() => handleBlur('telephone')}
-            required
-          >
-          <span class="icon is-small is-left">
-            <i class="fas fa-phone"></i>
-          </span>
-        </div>
-        {#if !validation.telephone.valid && formData.telephone !== ''}
-          <p class="help is-danger">{validation.telephone.message}</p>
-        {/if}
-      </div>
-      
-      <!-- Company Field -->
-      <div class="field">
-        <label class="label">Entreprise</label>
-        <div class="control has-icons-left">
-          <input 
-            class="input" 
-            type="text" 
-            placeholder="Nom de votre entreprise (optionnel)"
-            bind:value={formData.entreprise}
-          >
-          <span class="icon is-small is-left">
-            <i class="fas fa-building"></i>
-          </span>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Right Column -->
-    <div class="column is-6">
-      <!-- Subject Field -->
-      <div class="field">
-        <label class="label">Sujet</label>
-        <div class="control has-icons-left">
-          <div class="select is-fullwidth">
-            <select bind:value={formData.sujet}>
-              <option value="" disabled selected>Sélectionnez un sujet</option>
-              {#each subjects as subject}
-                <option value={subject}>{subject}</option>
-              {/each}
-            </select>
+      <div class="columns is-multiline">
+        <!-- Left Column -->
+        <div class="column is-6">
+          <!-- Name Field -->
+          <div class="field">
+            <label class="label" for="nom">Nom <span class="required">*</span></label>
+            <div class="control has-icons-left">
+              <input 
+                id="nom"
+                class="input" 
+                type="text" 
+                placeholder="Votre nom et prénom"
+                bind:value={formData.nom}
+                on:input={() => handleInput('nom')}
+                on:focus={() => handleFocus('nom')}
+                on:blur={() => handleBlur('nom')}
+                required
+              >
+              <span class="icon is-small is-left">
+                <i class="fas fa-user"></i>
+              </span>
+            </div>
+            {#if !validation.nom.valid && formData.nom !== ''}
+              <p class="help is-danger">{validation.nom.message}</p>
+            {/if}
           </div>
-          <span class="icon is-small is-left">
-            <i class="fas fa-tag"></i>
-          </span>
+          
+          <!-- Email Field -->
+          <div class="field">
+            <label class="label" for="email">Email <span class="required">*</span></label>
+            <div class="control has-icons-left">
+              <input 
+                id="email"
+                class="input" 
+                type="email" 
+                placeholder="Votre adresse email"
+                bind:value={formData.email}
+                on:input={() => handleInput('email')}
+                on:focus={() => handleFocus('email')}
+                on:blur={() => handleBlur('email')}
+                required
+              >
+              <span class="icon is-small is-left">
+                <i class="fas fa-envelope"></i>
+              </span>
+            </div>
+            {#if !validation.email.valid && formData.email !== ''}
+              <p class="help is-danger">{validation.email.message}</p>
+            {/if}
+          </div>
+          
+          <!-- Phone Field -->
+          <div class="field">
+            <label class="label" for="telephone">Téléphone <span class="required">*</span></label>
+            <div class="control has-icons-left">
+              <input 
+                id="telephone"
+                class="input" 
+                type="tel" 
+                placeholder="Votre numéro de téléphone"
+                bind:value={formData.telephone}
+                on:input={() => handleInput('telephone')}
+                on:focus={() => handleFocus('telephone')}
+                on:blur={() => handleBlur('telephone')}
+                required
+              >
+              <span class="icon is-small is-left">
+                <i class="fas fa-phone"></i>
+              </span>
+            </div>
+            {#if !validation.telephone.valid && formData.telephone !== ''}
+              <p class="help is-danger">{validation.telephone.message}</p>
+            {/if}
+          </div>
+          
+          <!-- Company Field -->
+          <div class="field">
+            <label class="label" for="entreprise">Entreprise</label>
+            <div class="control has-icons-left">
+              <input 
+                id="entreprise"
+                class="input" 
+                type="text" 
+                placeholder="Nom de votre entreprise (optionnel)"
+                bind:value={formData.entreprise}
+              >
+              <span class="icon is-small is-left">
+                <i class="fas fa-building"></i>
+              </span>
+            </div>
+          </div>
         </div>
-      </div>
-      
-      <!-- Urgency Level Field -->
-      <div class="field">
-        <label class="label">Niveau d'Urgence</label>
-        <div class="control">
-          <div class="urgency-selector">
-            {#each urgencyLevels as level}
-              <label class="urgency-option">
+        
+        <!-- Right Column -->
+        <div class="column is-6">
+          <!-- Subject Field -->
+          <div class="field">
+            <label class="label" for="sujet">Sujet</label>
+            <div class="control has-icons-left">
+              <div class="select is-fullwidth">
+                <select id="sujet" bind:value={formData.sujet}>
+                  <option value="" disabled selected>Sélectionnez un sujet</option>
+                  {#each subjects as subject}
+                    <option value={subject}>{subject}</option>
+                  {/each}
+                </select>
+              </div>
+              <span class="icon is-small is-left">
+                <i class="fas fa-tag"></i>
+              </span>
+            </div>
+          </div>
+          
+          <!-- Urgency Level Field -->
+          <div class="field">
+            <label class="label">Niveau d'Urgence</label>
+            <div class="control">
+              <div class="urgency-selector">
+                {#each urgencyLevels as level}
+                  <label class="urgency-option">
+                    <input 
+                      type="radio" 
+                      name="urgence"
+                      bind:group={formData.urgence} 
+                      value={level.value}
+                    >
+                    <div class={`urgency-label ${level.color}`}>
+                      <span class="icon">
+                        <i class={`fas fa-${level.icon}`}></i>
+                      </span>
+                      <span>{level.label}</span>
+                    </div>
+                  </label>
+                {/each}
+              </div>
+            </div>
+          </div>
+          
+          <!-- File Upload Field -->
+          <div class="field">
+            <label class="label">Joindre un fichier</label>
+            <div class="file has-name is-fullwidth">
+              <label class="file-label">
                 <input 
-                  type="radio" 
-                  bind:group={formData.urgence} 
-                  value={level.value}
-                  checked={formData.urgence === level.value}
+                  class="file-input" 
+                  type="file" 
+                  name="fichier"
+                  on:change={handleFileChange}
+                  accept=".pdf,.jpg,.jpeg,.png,.dwg,.dxf"
                 >
-                <span class={`urgency-label ${level.color}`}>
-                  <span class="icon">
-                    <i class="fas fa-{level.value === 'normal' ? 'clock' : level.value === 'urgent' ? 'exclamation' : 'exclamation-triangle'}"></i>
+                <span class="file-cta">
+                  <span class="file-icon">
+                    <i class="fas fa-upload"></i>
                   </span>
-                  <span>{level.label}</span>
+                  <span class="file-label">Choisir</span>
+                </span>
+                <span class="file-name">
+                  {fileLabel}
                 </span>
               </label>
-            {/each}
+            </div>
+            <p class="help">Maximum 10 Mo (PDF, JPG, PNG, DWG, DXF)</p>
+          </div>
+        </div>
+        
+        <!-- Message Field (Full Width) -->
+        <div class="column is-12">
+          <div class="field">
+            <label class="label" for="message">Message <span class="required">*</span></label>
+            <div class="control">
+              <textarea 
+                id="message"
+                class="textarea" 
+                placeholder="Détaillez votre demande..."
+                rows="5"
+                bind:value={formData.message}
+                on:input={() => handleInput('message')}
+                on:focus={() => handleFocus('message')}
+                on:blur={() => handleBlur('message')}
+                required
+              ></textarea>
+            </div>
+            {#if !validation.message.valid && formData.message !== ''}
+              <p class="help is-danger">{validation.message.message}</p>
+            {/if}
           </div>
         </div>
       </div>
       
-      <!-- File Upload Field -->
       <div class="field">
-        <label class="label">Joindre un fichier</label>
-        <div class="file has-name is-fullwidth">
-          <label class="file-label">
-            <input 
-              class="file-input" 
-              type="file" 
-              name="fichier"
-              on:change={handleFileChange}
-            >
-            <span class="file-cta">
-              <span class="file-icon">
-                <i class="fas fa-upload"></i>
-              </span>
-              <span class="file-label">
-                Choisir un fichier
-              </span>
-            </span>
-            <span class="file-name">
-              {formData.fichier ? formData.fichier.name : 'Aucun fichier sélectionné'}
-            </span>
+        <div class="control">
+          <label class="checkbox">
+            <input type="checkbox" required>
+            J'accepte que mes données soient traitées pour traiter ma demande conformément à la <a href="#">politique de confidentialité</a>.
           </label>
         </div>
-        <p class="help">Maximum 10 Mo (PDF, JPG, PNG)</p>
       </div>
-    </div>
-    
-    <!-- Message Field (Full Width) -->
-    <div class="column is-12">
-      <div class="field">
-        <label class="label">Message <span class="required">*</span></label>
+      
+      <div class="field is-grouped is-grouped-right">
         <div class="control">
-          <textarea 
-            id="message"
-            class="textarea" 
-            placeholder="Détaillez votre demande..."
-            rows="5"
-            bind:value={formData.message}
-            on:input={() => handleInput('message')}
-            on:focus={() => handleFocus('message')}
-            on:blur={() => handleBlur('message')}
-            required
-          ></textarea>
+          <button 
+            type="submit" 
+            class="button is-primary is-medium submit-button"
+            class:is-loading={submitStatus === 'sending'}
+            disabled={submitStatus === 'sending'}
+          >
+            <span class="icon">
+              <i class="fas fa-paper-plane"></i>
+            </span>
+            <span>Envoyer</span>
+          </button>
         </div>
-        {#if !validation.message.valid && formData.message !== ''}
-          <p class="help is-danger">{validation.message.message}</p>
-        {/if}
       </div>
-    </div>
-  </div>
-  
-  <div class="field">
-    <div class="control">
-      <label class="checkbox">
-        <input type="checkbox" required>
-        J'accepte que mes données soient traitées pour traiter ma demande.
-      </label>
-    </div>
-  </div>
-  
-  <div class="field is-grouped is-grouped-right">
-    <div class="control">
-      <button 
-        type="submit" 
-        class="button is-danger is-medium submit-button"
-        class:is-loading={submitStatus === 'sending'}
-        disabled={submitStatus === 'sending'}
-      >
-        <span class="icon">
-          <i class="fas fa-paper-plane"></i>
-        </span>
-        <span>Envoyer</span>
-      </button>
-    </div>
-  </div>
-</form>
+    </form>
+  {/if}
+</div>
 
 <style>
+  .contact-form-container {
+    position: relative;
+    background: linear-gradient(135deg, var(--bg-white), var(--bg-light));
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border);
+  }
+  
   .contact-form {
-  position: relative;
-  background-color: #ffffff;
-}
-
-.required {
-  color: #E53935;
-}
-
-.label {
-  font-weight: 600;
-  color: #363636 !important;
-}
-
-.urgency-selector {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.urgency-option {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-}
-
-.urgency-option input {
-  position: absolute;
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.urgency-label {
-  display: flex;
-  align-items: center;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  transition: all 0.2s ease;
-  width: 100%;
-  background-color: #f5f5f5;
-  color: #4a4a4a !important;
-}
-
-.urgency-label.is-info {
-  background-color: rgba(32, 156, 238, 0.1);
-  color: #209cee !important;
-}
-
-.urgency-label.is-warning {
-  background-color: rgba(255, 221, 87, 0.1);
-  color: #ffbe00 !important;
-}
-
-.urgency-label.is-danger {
-  background-color: rgba(229, 57, 53, 0.1);
-  color: #E53935 !important;
-}
-
-.urgency-option input:checked + .urgency-label {
-  box-shadow: 0 0 0 2px currentColor;
-  font-weight: 600;
-}
-
-.urgency-option:hover .urgency-label {
-  background-color: #f0f0f0;
-}
-
-.urgency-option:hover .urgency-label.is-info {
-  background-color: rgba(32, 156, 238, 0.15);
-}
-
-.urgency-option:hover .urgency-label.is-warning {
-  background-color: rgba(255, 221, 87, 0.15);
-}
-
-.urgency-option:hover .urgency-label.is-danger {
-  background-color: rgba(229, 57, 53, 0.15);
-}
-
-.urgency-label .icon {
-  margin-right: 0.5rem;
-}
-
-.file.has-name .file-name {
-  max-width: none;
-  border-top-right-radius: 4px;
-  border-bottom-right-radius: 4px;
-  background-color: #ffffff !important;
-  color: #4a4a4a !important;
-}
-
-.submit-button {
-  min-width: 150px;
-}
-
-/* Animation for notifications */
-.notification {
-  animation: slideInDown 0.3s ease-out;
-  background-color: #ffffff !important;
-}
-
-.notification.is-danger {
-  background-color: #fff5f5 !important;
-  color: #cd0930 !important;
-}
-
-.notification.is-success {
-  background-color: #f0fff4 !important;
-  color: #257942 !important;
-}
-
-.notification.is-warning {
-  background-color: #fffbeb !important;
-  color: #947600 !important;
-}
-
-.notification.is-info {
-  background-color: #f6f9fe !important;
-  color: #2160c4 !important;
-}
-
-@keyframes slideInDown {
-  from {
-    transform: translateY(-20px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-/* Input focus effects */
-.input:focus, .textarea:focus, .select select:focus {
-  box-shadow: 0 0 0 2px rgba(229, 57, 53, 0.2);
-  border-color: #E53935;
-  background-color: #ffffff !important;
-  color: #4a4a4a !important;
-}
-
-.input, .textarea, .select select {
-  background-color: #ffffff !important;
-  color: #4a4a4a !important;
-  border-color: #dbdbdb;
-}
-
-/* Error styling */
-.input.is-danger, .textarea.is-danger {
-  animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
-  border-color: #ff3860;
-  background-color: #ffffff !important;
-  color: #4a4a4a !important;
-}
-
-@keyframes shake {
-  10%, 90% {
-    transform: translateX(-1px);
+    padding: 2rem;
   }
   
-  20%, 80% {
-    transform: translateX(2px);
+  .contact-form::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(to right, var(--primary), var(--primary-light));
   }
   
-  30%, 50%, 70% {
-    transform: translateX(-3px);
+  .form-success {
+    padding: 4rem 2rem;
+    text-align: center;
+    animation: fadeSlideUp 0.5s ease forwards;
   }
   
-  40%, 60% {
-    transform: translateX(3px);
+  .success-icon {
+    font-size: 4rem;
+    color: var(--success);
+    margin-bottom: 1.5rem;
+    display: inline-block;
+    animation: scaleUp 0.5s ease forwards 0.2s;
+    transform: scale(0);
   }
-}
-
-/* Force light theme on all form elements */
-.checkbox, 
-.radio, 
-.file-label, 
-.file-name,
-.help {
-  color: #4a4a4a !important;
-}
-
-.help.is-danger {
-  color: #ff3860 !important;
-}
-
-/* Ensure light background on file selection */
-.file-cta {
-  background-color: #f5f5f5 !important;
-  color: #4a4a4a !important;
-}
-
-/* Responsive adjustments */
-@media screen and (max-width: 768px) {
+  
+  .form-success h3 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--dark);
+  }
+  
+  .form-success p {
+    color: var(--text-light);
+    font-size: 1.1rem;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+  
+  .required {
+    color: var(--primary);
+  }
+  
+  .label {
+    font-weight: 600;
+    color: var(--dark);
+    margin-bottom: 0.5rem;
+  }
+  
+  .input, .textarea, .select select {
+    background-color: white;
+    border: 2px solid var(--border);
+    transition: all 0.3s ease;
+  }
+  
+  .input:focus, .textarea:focus, .select select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(229, 57, 53, 0.1);
+  }
+  
+  .input.is-danger, .textarea.is-danger {
+    border-color: var(--danger);
+    animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+  }
+  
   .urgency-selector {
-    gap: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
   }
-}
+  
+  .urgency-option {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+  }
+  
+  .urgency-option input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  
+  .urgency-label {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-md);
+    border: 2px solid var(--border);
+    width: 100%;
+    transition: all 0.3s ease;
+  }
+  
+  .urgency-label .icon {
+    margin-right: 0.75rem;
+  }
+  
+  .urgency-label.is-info {
+    color: var(--info);
+    background-color: rgba(33, 150, 243, 0.05);
+  }
+  
+  .urgency-label.is-warning {
+    color: var(--warning);
+    background-color: rgba(255, 193, 7, 0.05);
+  }
+  
+  .urgency-label.is-danger {
+    color: var(--danger);
+    background-color: rgba(255, 61, 0, 0.05);
+  }
+  
+  .urgency-option input:checked + .urgency-label {
+    border-color: currentColor;
+    background-color: rgba(229, 57, 53, 0.05);
+    font-weight: 600;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+  }
+  
+  .urgency-option input:checked + .urgency-label.is-info {
+    background-color: rgba(33, 150, 243, 0.15);
+  }
+  
+  .urgency-option input:checked + .urgency-label.is-warning {
+    background-color: rgba(255, 193, 7, 0.15);
+  }
+  
+  .urgency-option input:checked + .urgency-label.is-danger {
+    background-color: rgba(255, 61, 0, 0.15);
+  }
+  
+  .urgency-option:hover .urgency-label {
+    transform: translateY(-2px);
+  }
+  
+  .file-cta {
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    font-weight: 600;
+  }
+  
+  .file-name {
+    border-color: var(--border);
+    border-width: 2px;
+    font-size: 0.9rem;
+  }
+  
+  .file-input:focus + .file-cta {
+    box-shadow: 0 0 0 2px rgba(229, 57, 53, 0.2);
+  }
+  
+  .submit-button {
+    min-width: 160px;
+    height: 3rem;
+    font-weight: 600;
+  }
+  
+  .checkbox {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    color: var(--text-light);
+  }
+  
+  .checkbox input {
+    margin-right: 0.5rem;
+  }
+  
+  .notification {
+    margin-bottom: 2rem;
+    animation: fadeSlideDown 0.5s ease;
+  }
+  
+  .help {
+    font-size: 0.8rem;
+    transition: all 0.3s ease;
+  }
+  
+  .help.is-danger {
+    color: var(--danger);
+  }
+  
+  @keyframes shake {
+    10%, 90% {
+      transform: translateX(-1px);
+    }
+    
+    20%, 80% {
+      transform: translateX(2px);
+    }
+    
+    30%, 50%, 70% {
+      transform: translateX(-3px);
+    }
+    
+    40%, 60% {
+      transform: translateX(3px);
+    }
+  }
+  
+  @keyframes fadeSlideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes fadeSlideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes scaleUp {
+    from {
+      transform: scale(0);
+    }
+    to {
+      transform: scale(1);
+    }
+  }
+  
+  /* Responsive Adjustments */
+  @media screen and (max-width: 768px) {
+    .contact-form {
+      padding: 1.5rem;
+    }
+    
+    .urgency-selector {
+      gap: 0.5rem;
+    }
+    
+    .submit-button {
+      width: 100%;
+    }
+  }
 </style>

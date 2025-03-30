@@ -144,7 +144,7 @@
                     <i class="fas fa-map-marker-alt"></i>
                   </span>
                   <div>
-                    <strong>Adresse:</strong><br>
+                    <strong >Adresse:</strong><br>
                     3 Avenue du Bois Vert<br>
                     Portet-Sur-Garonne, France
                   </div>
