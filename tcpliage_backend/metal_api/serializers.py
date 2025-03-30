@@ -1,6 +1,6 @@
 # metal_designer/serializers.py
 from rest_framework import serializers
-from .models import Material, ShapeTemplate, Coating, Color, MetalDesign
+from .models import Material, ShapeTemplate, Coating, Color, MetalDesign, ServiceCharacteristic, Service
 
 
 class MaterialSerializer(serializers.ModelSerializer):
@@ -79,6 +79,23 @@ class MetalDesignCreateSerializer(serializers.ModelSerializer):
         return design
 
 
+class ServiceCharacteristicSerializer(serializers.ModelSerializer):
+    """Serializer for service characteristics."""
+    class Meta:
+        model = ServiceCharacteristic
+        fields = ['description', 'order']
+
+
+class ServiceSerializer(serializers.ModelSerializer):
+    """Serializer for services."""
+    caracteristiques = ServiceCharacteristicSerializer(
+        many=True, read_only=True)
+
+    class Meta:
+        model = Service
+        fields = ['id', 'titre', 'description', 'image', 'caracteristiques']
+        
+        
 class MetalDesignDetailSerializer(serializers.ModelSerializer):
     """Serializer for retrieving metal design details."""
     material = MaterialSerializer(read_only=True)

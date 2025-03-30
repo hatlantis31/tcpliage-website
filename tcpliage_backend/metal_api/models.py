@@ -9,20 +9,50 @@ User = get_user_model()
 
 class Material(models.Model):
     """Model for metal materials."""
-    id = models.CharField(max_length=50, primary_key=True)
+    id = models.CharField(
+        max_length=50, primary_key=True)  # Important: Use same IDs as frontend (steel, aluminum, etc.)
     name = models.CharField(max_length=100)
     description = models.TextField()
     density = models.FloatField(help_text="Density in g/cm³")
     price_per_kg = models.DecimalField(max_digits=10, decimal_places=2)
+    min_thickness = models.FloatField(
+        default=0.5, help_text="Minimum thickness in mm")
+    max_thickness = models.FloatField(
+        default=20.0, help_text="Maximum thickness in mm")
     image = models.ImageField(upload_to='materials/', null=True, blank=True)
 
     def __str__(self):
         return self.name
 
 
+class Service(models.Model):
+    """Model for company services."""
+    id = models.CharField(max_length=50, primary_key=True)
+    titre = models.CharField(max_length=100)
+    description = models.TextField()
+    image = models.ImageField(upload_to='services/', null=True, blank=True)
+
+    def __str__(self):
+        return self.titre
+
+
+class ServiceCharacteristic(models.Model):
+    """Characteristics/features of a service."""
+    service = models.ForeignKey(
+        Service, related_name='caracteristiques', on_delete=models.CASCADE)
+    description = models.CharField(max_length=200)
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order']
+
+    def __str__(self):
+        return f"{self.service.titre} - {self.description[:30]}"
+    
 class ShapeTemplate(models.Model):
     """Model for predefined shapes."""
-    id = models.CharField(max_length=50, primary_key=True)
+    id = models.CharField(
+        max_length=50, primary_key=True)  # Important: Match frontend IDs (rectangle, lShape, etc.)
     name = models.CharField(max_length=100)
     description = models.TextField()
     svg_path = models.TextField(help_text="SVG path data for rendering")
