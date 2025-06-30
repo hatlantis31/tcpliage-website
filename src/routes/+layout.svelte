@@ -28,6 +28,7 @@
     overflow-x: hidden; /* Prevent horizontal scrolling */
   }
   
+  
   /* Add smooth scrolling for better user experience */
   :global(html) {
     scroll-behavior: smooth;
