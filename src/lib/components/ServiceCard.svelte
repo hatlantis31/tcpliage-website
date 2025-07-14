@@ -99,6 +99,7 @@
   </div>
 {/if}
 
+
 <style>
   /* Main service card */
   .service-card {
@@ -120,6 +121,7 @@
   
   .service-card:hover {
     box-shadow: var(--shadow-lg);
+    transform: translateY(-5px);
   }
   
   .service-image-container {
@@ -153,7 +155,7 @@
   }
   
   .service-image-container:hover .service-overlay {
-    opacity: 0.3;
+    opacity: 0.5;
   }
   
   .service-content {
@@ -161,10 +163,11 @@
   }
   
   .service-title {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--dark);
-    margin-bottom: 1rem;
+    font-size: 2rem !important;
+    font-weight: 700 !important;
+    color: var(--dark) !important;
+    margin-bottom: 1rem !important;
+    line-height: 1.2;
   }
   
   .title-underline {
@@ -172,6 +175,7 @@
     width: 60px;
     background-color: var(--primary);
     margin-bottom: 1.5rem;
+    border-radius: 2px;
   }
   
   .title-underline.small {
@@ -180,16 +184,16 @@
   }
   
   .service-description {
-    color: var(--text-light);
-    margin-bottom: 1.5rem;
-    font-size: 1.1rem;
+    color: var(--text-light) !important;
+    margin-bottom: 1.5rem !important;
+    font-size: 1.1rem !important;
     line-height: 1.6;
   }
   
   .service-features {
-    list-style: none;
-    padding: 0;
-    margin: 0 0 2rem;
+    list-style: none !important;
+    padding: 0 !important;
+    margin: 0 0 2rem !important;
   }
   
   .service-features li {
@@ -201,10 +205,16 @@
     padding: 0.5rem 1rem;
     border-radius: var(--radius-md);
     margin-bottom: 0.5rem;
+    transition: all 0.3s ease;
+  }
+  
+  .service-features li:hover {
+    background-color: rgba(229, 57, 53, 0.12);
+    transform: translateX(5px);
   }
   
   .service-features li .icon {
-    color: var(--primary);
+    color: var(--primary) !important;
     margin-right: 0.75rem;
     flex-shrink: 0;
   }
@@ -216,8 +226,36 @@
   }
   
   .service-actions .button {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
+    border-radius: var(--radius-md) !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease !important;
+  }
+  
+  .service-actions .button.is-primary {
+    background-color: var(--primary) !important;
+    border-color: var(--primary) !important;
+    color: white !important;
+  }
+  
+  .service-actions .button.is-primary:hover {
+    background-color: var(--primary-dark) !important;
+    border-color: var(--primary-dark) !important;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md) !important;
+  }
+  
+  .service-actions .button.is-light {
+    background-color: var(--bg-light) !important;
+    border-color: var(--border) !important;
+    color: var(--text) !important;
+  }
+  
+  .service-actions .button.is-light:hover {
+    background-color: var(--border) !important;
+    border-color: var(--border-dark) !important;
+    transform: translateY(-2px);
   }
   
   /* Simple card version */
@@ -226,13 +264,21 @@
     transform: translateY(30px);
     opacity: 0;
     transition: all 0.5s ease;
-    background: linear-gradient(to bottom, var(--bg-white) 70%, var(--bg-primary-subtle) 100%);
-    border-top: 3px solid var(--primary);
+    background: linear-gradient(to bottom, var(--bg-white) 70%, rgba(229, 57, 53, 0.05) 100%) !important;
+    border-top: 3px solid var(--primary) !important;
+    border-radius: var(--radius-lg) !important;
+    overflow: hidden;
+    box-shadow: var(--shadow-md) !important;
   }
   
   .simple-service-card.is-visible {
     transform: translateY(0);
     opacity: 1;
+  }
+  
+  .simple-service-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg) !important;
   }
   
   .simple-service-card .card-image {
@@ -262,29 +308,31 @@
   }
   
   .simple-service-card .card-content {
-    padding: 1.5rem;
+    padding: 1.5rem !important;
     position: relative;
   }
   
   .simple-service-card .card-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: 0.75rem;
-    color: var(--dark);
+    font-size: 1.5rem !important;
+    font-weight: 700 !important;
+    margin-bottom: 0.75rem !important;
+    color: var(--dark) !important;
+    line-height: 1.3;
   }
   
   .simple-service-card .card-description {
-    color: var(--text-light);
-    margin-bottom: 1.5rem;
+    color: var(--text-light) !important;
+    margin-bottom: 1.5rem !important;
     line-height: 1.5;
   }
   
   .card-link {
-    display: inline-flex;
+    display: inline-flex !important;
     align-items: center;
-    color: var(--primary);
-    font-weight: 600;
-    transition: all 0.3s ease;
+    color: var(--primary) !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease !important;
+    text-decoration: none;
   }
   
   .card-link .icon {
@@ -293,7 +341,7 @@
   }
   
   .card-link:hover {
-    color: var(--primary-dark);
+    color: var(--primary-dark) !important;
   }
   
   .card-link:hover .icon {
@@ -303,7 +351,7 @@
   /* Responsive Adjustments */
   @media screen and (max-width: 768px) {
     .service-card .columns {
-      flex-direction: column;
+      flex-direction: column !important;
     }
     
     .service-image-container {
@@ -311,19 +359,68 @@
     }
     
     .service-title {
-      font-size: 1.75rem;
+      font-size: 1.75rem !important;
     }
     
     .service-content {
       padding: 1.5rem;
     }
     
-    .image-column {
-      order: 1;
+    .service-actions {
+      flex-direction: column;
     }
     
-    .content-column {
-      order: 2;
+    .service-actions .button {
+      width: 100%;
+      justify-content: center;
     }
+    
+    .simple-service-card .card-image {
+      height: 160px;
+    }
+  }
+  
+  /* Animation delays for multiple cards */
+  .service-card:nth-child(2) {
+    transition-delay: 0.1s;
+  }
+  
+  .service-card:nth-child(3) {
+    transition-delay: 0.2s;
+  }
+  
+  .service-card:nth-child(4) {
+    transition-delay: 0.3s;
+  }
+  
+  /* Focus states for accessibility */
+  .card-link:focus,
+  .service-actions .button:focus {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+  
+  /* Loading states */
+  .service-card.is-loading {
+    opacity: 0.7;
+  }
+  
+  .service-card.is-loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 2rem;
+    height: 2rem;
+    border: 3px solid var(--border);
+    border-top: 3px solid var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    transform: translate(-50%, -50%);
+  }
+  
+  @keyframes spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
   }
 </style>

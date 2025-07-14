@@ -332,55 +332,5 @@
 </div>
 
 <style>
-  /* Custom styles for step navigation */
-  .steps {
-    display: flex;
-    position: relative;
-  }
-  .steps::before {
-    content: '';
-    position: absolute;
-    top: 14px;
-    left: 0;
-    width: 100%;
-    height: 2px;
-    background-color: #dbdbdb;
-    z-index: 0;
-  }
-  .step-item {
-    flex: 1;
-    text-align: center;
-    padding: 0 1rem;
-    cursor: pointer;
-  }
-  .step-marker {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background-color: #dbdbdb;
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    color: white;
-    position: relative;
-    z-index: 1;
-    transition: all 0.3s;
-  }
-  .step-details {
-    margin-top: 0.5rem;
-  }
-  .step-title {
-    font-size: 0.9rem;
-    color: #7a7a7a;
-  }
-  .step-item.is-active .step-marker {
-    background-color: #3273dc;
-  }
-  .step-item.is-active .step-title {
-    color: #363636;
-    font-weight: 600;
-  }
-  .step-item.is-completed .step-marker {
-    background-color: #48c774;
-  }
+
 </style>

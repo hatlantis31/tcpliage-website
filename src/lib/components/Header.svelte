@@ -85,22 +85,47 @@
   </div>
 </header>
 
+/* Header.svelte CSS */
 <style>
+  /* CSS Variables for consistency */
+  :root {
+    --primary: #E53935;
+    --primary-dark: #C62828;
+    --secondary: #2E4057;
+    --secondary-dark: #1a2d40;
+    --dark: #333333;
+    --text: #555555;
+    --text-light: #777777;
+    --bg-white: #ffffff;
+    --bg-light: #f8f9fa;
+    --border: #e0e0e0;
+    --border-dark: #cccccc;
+    --success: #4CAF50;
+    --warning: #FF9800;
+    --info: #2196F3;
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.12);
+    --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.15);
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+  }
+
   .site-header {
-    position: fixed;
+    position: fixed !important;
     top: 0;
     left: 0;
     right: 0;
     z-index: 1000;
     transition: all 0.3s ease;
-    background: linear-gradient(to right, var(--bg-white), var(--bg-light));
+    background: linear-gradient(to right, var(--bg-white), var(--bg-light)) !important;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     border-bottom: 3px solid var(--primary);
   }
   
   .site-header.is-scrolled {
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-    background-color: var(--bg-white);
+    background-color: var(--bg-white) !important;
   }
   
   .site-header.is-hidden {
@@ -108,17 +133,17 @@
   }
   
   .navbar {
-    background-color: transparent;
+    background-color: transparent !important;
     min-height: 4.5rem;
     padding: 0.5rem 0;
   }
   
   .logo-container {
-    padding: 0.25rem 0.75rem;
+    padding: 0.25rem 0.75rem !important;
   }
   
   .logo {
-    height: 3rem;
+    height: 3rem !important;
     width: auto;
     max-height: none !important;
     object-fit: contain;
@@ -126,17 +151,18 @@
   }
   
   .is-scrolled .logo {
-    height: 2.5rem;
+    height: 2.5rem !important;
   }
   
   .navbar-item {
-    font-weight: 600;
-    font-family: var(--font-family-heading);
+    font-weight: 600 !important;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
     color: var(--text) !important;
-    padding: 0.5rem 1rem;
+    padding: 0.5rem 1rem !important;
     margin: 0 0.25rem;
     transition: all 0.3s ease;
     position: relative;
+    border-radius: var(--radius-sm);
   }
   
   .navbar-item::after {
@@ -153,7 +179,7 @@
   
   .navbar-item:hover {
     color: var(--primary) !important;
-    background-color: transparent !important;
+    background-color: rgba(229, 57, 53, 0.05) !important;
   }
   
   .navbar-item:hover::after {
@@ -161,50 +187,76 @@
   }
   
   /* Current page indicator - add class 'is-active' to current page nav item */
+  .navbar-item.is-active {
+    color: var(--primary) !important;
+    background-color: rgba(229, 57, 53, 0.1) !important;
+  }
+  
   .navbar-item.is-active::after {
     width: 70%;
   }
   
   .navbar-burger {
-    height: 4.5rem;
-    width: 4.5rem;
-    background: none;
-    border: none;
+    height: 4.5rem !important;
+    width: 4.5rem !important;
+    background: none !important;
+    border: none !important;
     cursor: pointer;
-    padding: 0;
+    padding: 0 !important;
     color: var(--text);
   }
   
   .navbar-burger span {
-    height: 2px;
-    width: 30px;
-    left: calc(50% - 15px);
-    background-color: var(--text);
+    height: 2px !important;
+    width: 30px !important;
+    left: calc(50% - 15px) !important;
+    background-color: var(--text) !important;
     transition: all 0.3s ease;
   }
   
   .navbar-burger:hover span {
-    background-color: var(--primary);
+    background-color: var(--primary) !important;
   }
   
   .navbar-burger.is-active span:nth-child(1) {
-    transform: translateY(7px) rotate(45deg);
+    transform: translateY(7px) rotate(45deg) !important;
   }
   
   .navbar-burger.is-active span:nth-child(2) {
-    opacity: 0;
+    opacity: 0 !important;
   }
   
   .navbar-burger.is-active span:nth-child(3) {
-    transform: translateY(-7px) rotate(-45deg);
+    transform: translateY(-7px) rotate(-45deg) !important;
   }
   
   .emergency-call {
-    background-color: rgba(229, 57, 53, 0.1);
+    background-color: rgba(229, 57, 53, 0.1) !important;
     color: var(--primary) !important;
-    border-radius: 4px;
-    font-weight: 700;
+    border-radius: 4px !important;
+    font-weight: 700 !important;
     margin-right: 0.5rem;
+  }
+  
+  .emergency-call:hover {
+    background-color: rgba(229, 57, 53, 0.15) !important;
+  }
+  
+  /* Emergency button in navbar */
+  .navbar-item .button.is-danger {
+    background-color: var(--primary) !important;
+    border-color: var(--primary) !important;
+    color: white !important;
+    font-weight: 600;
+    border-radius: var(--radius-md);
+    transition: all 0.3s ease;
+  }
+  
+  .navbar-item .button.is-danger:hover {
+    background-color: var(--primary-dark) !important;
+    border-color: var(--primary-dark) !important;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
   }
   
   /* Mobile menu styles */
@@ -214,42 +266,42 @@
     }
     
     .navbar-menu {
-      position: fixed;
+      position: fixed !important;
       top: 4.5rem;
       left: 0;
       right: 0;
       bottom: 0;
-      background-color: white;
-      padding: 1rem;
-      display: flex;
+      background-color: white !important;
+      padding: 1rem !important;
+      display: flex !important;
       flex-direction: column;
       align-items: stretch;
       opacity: 0;
       pointer-events: none;
       transform: translateY(-10px);
       transition: all 0.3s ease;
-      box-shadow: none;
+      box-shadow: none !important;
       overflow-y: auto;
     }
     
     .navbar-menu.is-active {
-      opacity: 1;
+      opacity: 1 !important;
       pointer-events: auto;
       transform: translateY(0);
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1) !important;
     }
     
     .navbar-end {
-      flex-direction: column;
+      flex-direction: column !important;
       margin-top: 1rem;
     }
     
     .navbar-item {
-      padding: 1rem;
-      margin: 0.25rem 0;
+      padding: 1rem !important;
+      margin: 0.25rem 0 !important;
       text-align: center;
-      font-size: 1.25rem;
-      border-radius: 8px;
+      font-size: 1.25rem !important;
+      border-radius: var(--radius-md) !important;
     }
     
     .navbar-item:hover {
@@ -258,6 +310,11 @@
     
     .navbar-item::after {
       display: none;
+    }
+    
+    .emergency-call {
+      margin: 0.5rem 0 !important;
+      justify-content: center;
     }
   }
   
@@ -269,7 +326,7 @@
     
     .navbar-menu {
       display: flex !important;
-      background-color: transparent;
+      background-color: transparent !important;
     }
     
     .navbar-end {

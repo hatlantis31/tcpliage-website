@@ -2,7 +2,7 @@
   import ContactForm from '$lib/components/ContactForm.svelte';
 </script>
 
-<section class="hero is-medium is-dark">
+<section class="hero is-medium ">
   <div class="hero-body">
     <div class="container">
       <h1 class="title is-1">Contactez-nous</h1>
@@ -40,14 +40,16 @@
           <h3 class="title is-4">Localisation</h3>
           <div class="box">
             <!-- Ajoutez votre code d'intégration Google Maps ici -->
-            <iframe 
-              width="100%" 
-              height="300" 
-              frameborder="0" 
-              style="border:0" 
-              src="https://www.google.com/maps/place/Tc+Pliage/@43.5589011,1.411853,17z/data=!3m1!4b1!4m6!3m5!1s0x12aeb9bf92ebcdd5:0x70377b05ec5c3a5b!8m2!3d43.5589011!4d1.411853!16s%2Fg%2F11flt355hb?entry=ttu&g_ep=EgoyMDI1MDMyNC4wIKXMDSoASAFQAw%3D%3D" 
-              allowfullscreen>
-            </iframe>
+            <iframe
+                    width="100%"
+                    height="400"
+                    style="border:0"
+                    loading="lazy"
+                    allowfullscreen
+                    referrerpolicy="no-referrer-when-downgrade"
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2889.9371526429886!2d1.4033!3d43.5356!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12aebb7baf3310a3%3A0x1d4f860e16ef5296!2s3%20Av.%20du%20Bois%20Vert%2C%2031120%20Portet-sur-Garonne!5e0!3m2!1sfr!2sfr!4v1650000000000!5m2!1sfr!2sfr"
+                  >
+                  </iframe>
           </div>
         </div>
       </div>
@@ -59,3 +61,13 @@
     </div>
   </div>
 </section>
+
+<style>
+  .hero {
+    background-image: url('/contact_hero.jpg');
+    background-size: cover;
+    background-position: center;
+  }
+
+  </style>
+
