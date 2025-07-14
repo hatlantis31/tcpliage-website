@@ -96,8 +96,8 @@
     --dark: #333333;
     --text: #555555;
     --text-light: #777777;
-    --bg-white: #ffffff;
-    --bg-light: #f8f9fa;
+    --bg-white: #e0e0e0;
+    --bg-light: #e0e0e0;
     --border: #e0e0e0;
     --border-dark: #cccccc;
     --success: #4CAF50;
@@ -118,14 +118,14 @@
     right: 0;
     z-index: 1000;
     transition: all 0.3s ease;
-    background: linear-gradient(to right, var(--bg-white), var(--bg-light)) !important;
+    background: #e0e0e0 !important;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     border-bottom: 3px solid var(--primary);
   }
   
   .site-header.is-scrolled {
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-    background-color: var(--bg-white) !important;
+    background-color: #e0e0e0 !important;
   }
   
   .site-header.is-hidden {

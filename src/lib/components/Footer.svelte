@@ -32,8 +32,8 @@
     <div class="footer-top">
       <div class="columns is-multiline">
         <div class="column is-5">
-          <div class="footer-brand animate-item">
-            <img src="/logo.jpg" alt="TCPliage Logo" width="180">
+          <div class=" animate-item">
+            <img src="/favicon.jpg" alt="TCPliage Logo" width="180">
             <p class="mt-4">
               TC PLIAGE, votre partenaire métallurgique de confiance depuis 2016. Notre savoir-faire et notre réactivité au service de vos projets.
             </p>

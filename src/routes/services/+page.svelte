@@ -78,7 +78,7 @@
 <style>
   /* Hero Section */
   .hero.is-medium.is-dark {
-    background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('/services-hero.jpg');
+    background-image: url('/home-hero.jpg')!important;
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
@@ -94,7 +94,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(135deg, rgba(229, 57, 53, 0.8), rgba(46, 64, 87, 0.8));
+    background: linear-gradient(135deg, rgba(167, 93, 91, 0.8), rgba(46, 64, 87, 0.8));
     z-index: 1;
   }
   

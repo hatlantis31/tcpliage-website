@@ -377,7 +377,6 @@
   </div>
 </section>
 
-/* About Page CSS (src/routes/about/+page.svelte) */
 <style>
   /* Hero Section */
   .hero.is-medium {

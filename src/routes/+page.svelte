@@ -94,7 +94,7 @@
             class="button is-info is-fullwidth"
           >
             <span class="icon">
-              <i class="fas fa-directions"></i>
+              <i class="fas c"></i>
             </span>
             <span>Itinéraire</span>
           </a>
@@ -291,7 +291,7 @@
 <style>
   /* Hero Section */
   .contact-hero {
-    background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('/home-hero.jpg');
+    background-image:  url('/home-hero.jpg');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
@@ -300,7 +300,10 @@
     position: relative;
     overflow: hidden;
   }
-  
+  .button.is-info {
+    background-color: var(--primary) !important;
+    border-color: var(--primary) !important;
+  }
   .contact-hero::before {
     content: '';
     position: absolute;
@@ -308,7 +311,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(135deg, rgba(229, 57, 53, 0.8), rgba(46, 64, 87, 0.8));
+    background: linear-gradient(135deg, rgba(167, 93, 91, 0.8), rgba(46, 64, 87, 0.8));
     z-index: 1;
   }
   
@@ -320,12 +323,14 @@
   .contact-hero .title {
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
     margin-bottom: 1rem !important;
+    color: white !important;
   }
   
   .contact-hero .subtitle {
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
     font-weight: 300 !important;
     opacity: 0.95;
+    color: white !important;
   }
   
   /* Contact Options Cards */
