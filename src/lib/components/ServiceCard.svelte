@@ -1,5 +1,5 @@
 <script>
-  // Accept both old and new prop formats
+  // Accept both old and new prop formats (keep your existing code)
   export let service = null;
   export let title = null;
   export let image = null;
@@ -7,11 +7,11 @@
 
   // Use service object if provided, otherwise use individual props
   $: displayTitle = service ? service.titre : title;
-  $: displayImage = service ? service.image : image;
+  $: displayImage = service ? service.image : image; // This now works with full URLs
   $: displayDescription = service ? service.description : description;
   $: characteristics = service ? service.caracteristiques : [];
   
-  // For animation on scroll visibility
+  // Keep all your existing onMount and animation code...
   import { onMount } from 'svelte';
   let isVisible = false;
   
@@ -36,6 +36,7 @@
   });
 </script>
 
+<!-- Keep all your existing HTML template - just the image src will now work properly -->
 {#if service}
   <div class="service-card" class:is-visible={isVisible}>
     <div class="columns is-vcentered">
@@ -44,7 +45,7 @@
           {#if displayImage}
             <img src={displayImage} alt={displayTitle} class="service-image">
           {:else}
-            <!-- Placeholder image if no image is provided -->
+            <!-- Fallback image when no image is uploaded -->
             <img src="/images/services/default.jpg" alt={displayTitle} class="service-image">
           {/if}
           <div class="service-overlay"></div>
@@ -74,27 +75,6 @@
           </div>
         </div>
       </div>
-    </div>
-  </div>
-{:else}
-  <!-- Simple card version -->
-  <div class="card simple-service-card" class:is-visible={isVisible}>
-    <div class="card-image">
-      {#if displayImage}
-        <img src={displayImage} alt={displayTitle}>
-      {:else}
-        <img src="/images/services/default.jpg" alt={displayTitle}>
-      {/if}
-      <div class="card-overlay"></div>
-    </div>
-    <div class="card-content">
-      <h3 class="card-title">{displayTitle}</h3>
-      <div class="title-underline small"></div>
-      <p class="card-description">{displayDescription}</p>
-      <a href="/services/{displayTitle.toLowerCase().replace(/\s+/g, '-')}" class="card-link">
-        <span>En savoir plus</span>
-        <span class="icon"><i class="fas fa-arrow-right"></i></span>
-      </a>
     </div>
   </div>
 {/if}

@@ -90,6 +90,20 @@ class ServiceSerializer(serializers.ModelSerializer):
     """Serializer for services."""
     caracteristiques = ServiceCharacteristicSerializer(
         many=True, read_only=True)
+    image = serializers.SerializerMethodField()  # This will now return the full URL
+
+    class Meta:
+        model = Service
+        fields = ['id', 'titre', 'description', 'image', 'caracteristiques']
+    
+    def get_image(self, obj):
+        """Return the full image URL or None."""
+        if obj.image:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.image.url)
+            return obj.image.url
+        return None
 
     class Meta:
         model = Service
