@@ -74,7 +74,7 @@
   </div>
 </section>
 
-/* Services Page CSS (src/routes/services/+page.svelte) */
+
 <style>
   /* Hero Section */
   .hero.is-medium.is-dark {

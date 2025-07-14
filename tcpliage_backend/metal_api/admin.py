@@ -1,6 +1,6 @@
 # metal_designer/admin.py
 from django.contrib import admin
-from .models import Material, ShapeTemplate, Coating, Color, MetalDesign
+from .models import Material, ShapeTemplate, Coating, Color, MetalDesign, Service, ServiceCharacteristic
 
 
 @admin.register(Material)
@@ -46,3 +46,24 @@ class MetalDesignAdmin(admin.ModelAdmin):
             'fields': ('quoted_price', 'quoted_at', 'estimated_production_time')
         }),
     )
+
+# Add these new admin classes for Service models
+class ServiceCharacteristicInline(admin.TabularInline):
+    model = ServiceCharacteristic
+    extra = 1
+    ordering = ['order']
+
+
+@admin.register(Service)
+class ServiceAdmin(admin.ModelAdmin):
+    list_display = ('id', 'titre', 'description')
+    search_fields = ('titre', 'description')
+    inlines = [ServiceCharacteristicInline]
+
+
+@admin.register(ServiceCharacteristic)
+class ServiceCharacteristicAdmin(admin.ModelAdmin):
+    list_display = ('service', 'description', 'order')
+    list_filter = ('service',)
+    search_fields = ('description',)
+    ordering = ['service', 'order']
