@@ -17,6 +17,7 @@ Thumbs.db
 .env.*
 !.env.example
 !.env.test
+DJANGO_SECRET_KEY
 
 # Vite
 vite.config.js.timestamp-*

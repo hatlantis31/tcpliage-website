@@ -1,13 +1,12 @@
 # metal_designer/views.py
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
-from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from django.utils import timezone
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.utils import timezone
 import uuid
+from django.shortcuts import render
 
 from .models import Material, ShapeTemplate, Coating, Color, MetalDesign, ServiceCharacteristic, Service
 from .serializers import (
