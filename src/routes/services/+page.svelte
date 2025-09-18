@@ -77,6 +77,7 @@
 
 <style>
   /* Hero Section */
+  
   .hero.is-medium.is-dark {
     background-image: url('/home-hero.jpg')!important;
     background-size: cover;
