@@ -27,11 +27,15 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG =True
 
-ALLOWED_HOSTS = [
-    '127.0.0.1',
-    'localhost',
-    'django-backend-x106.onrender.com',  # Add your Render backend domain
-    'tcpliage-website-6vl9muyzy-hatlantis31s-projects.vercel.app']
+if os.environ.get('RENDER'):
+    ALLOWED_HOSTS = ['*']  # ← WILDCARD: Accept ANY Host
+else:
+    ALLOWED_HOSTS = [
+        '127.0.0.1',
+        'localhost',
+        'django-backend-x106.onrender.com',
+        'tcpliage-website-6vl9muyzy-hatlantis31s-projects.vercel.app',
+    ]
 
 # Application definition
 
