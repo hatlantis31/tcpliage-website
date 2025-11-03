@@ -31,8 +31,7 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     'localhost',
     'django-backend-x106.onrender.com',  # Add your Render backend domain
-    'your-frontend-domain.com',  # Add your frontend domain if needed
-    'https://tcpliage-website-1kf81g6ud-hatlantis31s-projects.vercel.app/']
+    'tcpliage-website-6vl9muyzy-hatlantis31s-projects.vercel.app']
 
 # Application definition
 
@@ -80,37 +79,17 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
-    ],
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.BasicAuthentication',
-    ],
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 10,
-    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
-    'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.NamespaceVersioning',
-    'DEFAULT_RENDERER_CLASSES': [
-        'rest_framework.renderers.JSONRenderer',
-        'rest_framework.renderers.BrowsableAPIRenderer',
-    ],
-    'DEFAULT_PARSER_CLASSES': [
-        'rest_framework.parsers.JSONParser',
-        'rest_framework.parsers.FormParser',
-        'rest_framework.parsers.MultiPartParser',
-    ],
-}
-
 # Development CORS settings
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",  # Svelte dev server
     "http://127.0.0.1:5173",
     "http://localhost:4173",  # SvelteKit preview
     "http://localhost:3000",
-    "https://tcpliage-website-1kf81g6ud-hatlantis31s-projects.vercel.app/",
+    "https://tcpliage-website-6vl9muyzy-hatlantis31s-projects.vercel.app",
 ]
+
+if os.environ.get('RENDER'):
+    ALLOWED_HOSTS += ['0.0.0.0', '127.0.0.1']
 
 # For serving media files
 MEDIA_URL = '/media/'
