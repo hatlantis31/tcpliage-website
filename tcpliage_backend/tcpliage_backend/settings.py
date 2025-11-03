@@ -27,8 +27,12 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
-
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    'localhost',
+    'django-backend-x106.onrender.com',  # Add your Render backend domain
+    'your-frontend-domain.com',  # Add your frontend domain if needed
+    'https://tcpliage-website-1kf81g6ud-hatlantis31s-projects.vercel.app/']
 
 # Application definition
 
@@ -105,6 +109,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5173",
     "http://localhost:4173",  # SvelteKit preview
     "http://localhost:3000",
+    "https://tcpliage-website-1kf81g6ud-hatlantis31s-projects.vercel.app/",
 ]
 
 # For serving media files

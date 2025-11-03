@@ -1,5 +1,5 @@
 // src/lib/services/metalApiService.js
-
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 /**
  * Handles API interactions for the metal part designer
  */
@@ -12,7 +12,7 @@ export default {
    */
   submitDesign: async (design) => {
     try {
-      const response = await fetch("/api/metal-piece/", {
+      const response = await fetch(`${API_URL}/api/metal-piece/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -39,7 +39,7 @@ export default {
    */
   getMaterials: async () => {
     try {
-      const response = await fetch("/api/materials-list/");
+      const response = await fetch(`${API_URL}/api/materials-list/`)
       if (!response.ok) {
         throw new Error("Failed to fetch materials");
       }
@@ -71,7 +71,7 @@ export default {
   getFinishes: async (materialId) => {
     try {
       const response = await fetch(
-        `/api/finishes-for-material/?materialId=${materialId}`
+        `${API_URL}/api/finishes-for-material/?materialId=${materialId}`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch finishes");
