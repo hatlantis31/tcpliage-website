@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from django.utils import timezone
 import uuid
 from django.shortcuts import render
+from django.http import HttpResponse
 
 from .models import Material, ShapeTemplate, Coating, Color, MetalDesign, ServiceCharacteristic, Service
 from .serializers import (
@@ -15,6 +16,8 @@ from .serializers import (
     ServiceCharacteristicSerializer, ServiceSerializer
 )
 
+def health(request):
+    return HttpResponse("OK", content_type="text/plain")
 
 @api_view(['GET'])
 def shape_templates_list_view(request):

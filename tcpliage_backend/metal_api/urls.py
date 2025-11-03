@@ -1,6 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from . import views
+from metal_api.views import health
 
 router = DefaultRouter()
 router.register(r'materials', views.MaterialViewSet)
@@ -19,4 +20,5 @@ urlpatterns = [
     path('shapes-list/', views.shape_templates_list_view, name='shapes-list'),
     path('finishes-for-material/', views.finishes_for_material,
          name='finishes-for-material'),
+    path('health/', health),  # ← ADD THIS
 ]
