@@ -8,6 +8,7 @@ from django.utils import timezone
 import uuid
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
 
 from .models import Material, ShapeTemplate, Coating, Color, MetalDesign, ServiceCharacteristic, Service
 from .serializers import (
@@ -16,7 +17,8 @@ from .serializers import (
     ServiceCharacteristicSerializer, ServiceSerializer
 )
 
-def health(request):
+@csrf_exempt
+def root(request):
     return HttpResponse("OK", content_type="text/plain")
 
 @api_view(['GET'])

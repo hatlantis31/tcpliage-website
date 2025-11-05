@@ -19,5 +19,4 @@ urlpatterns = [
     path('shapes-list/', views.shape_templates_list_view, name='shapes-list'),
     path('finishes-for-material/', views.finishes_for_material,
          name='finishes-for-material'),
-    path('health/', views.health),  # ← ADD THIS
 ]
