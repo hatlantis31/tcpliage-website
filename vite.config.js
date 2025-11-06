@@ -6,7 +6,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "https://django-backend-x106.onrender.com", // Django server
+        target: "https://tcpliage-backend.onrender.com", // Django server
         changeOrigin: true,
       },
       "/media": {
