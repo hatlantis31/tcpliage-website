@@ -1,5 +1,5 @@
 // src/lib/services/metalApiService.js
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_URL = 'https://tcpliage-backend.onrender.com/';
 /**
  * Handles API interactions for the metal part designer
  */
