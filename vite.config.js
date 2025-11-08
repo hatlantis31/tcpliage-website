@@ -10,7 +10,7 @@ export default defineConfig({
         changeOrigin: true,
       },
       "/media": {
-        target: "https://django-backend-x106.onrender.com",
+        target: "https://tcpliage-backend.onrender.com",
         changeOrigin: true,
       },
     },
