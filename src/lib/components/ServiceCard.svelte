@@ -71,7 +71,7 @@
           
           <div class="service-actions">
             <a href="/contact?service={encodeURIComponent(displayTitle)}" class="button is-primary">Demander un Devis</a>
-            <a href="/services/{displayTitle.toLowerCase().replace(/\s+/g, '-')}" class="button is-light">En savoir plus</a>
+            <a href="/about" class="button is-light">En savoir plus</a>
           </div>
         </div>
       </div>
