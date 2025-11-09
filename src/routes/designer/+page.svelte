@@ -206,36 +206,114 @@
     };
     reader.readAsText(file);
   }
-  
-  // Submit the design to the API
-  async function submitDesign() {
-    try {
-      isSubmitting = true;
-      
-      // Validate the entire design before submitting
-      const validationResult = validateDesign(design);
-      if (!validationResult.isValid) {
-        // Show the first error message
-        const firstError = Object.values(validationResult.errors)[0];
-        showMessage(`Validation error: ${firstError}`, 'is-danger');
-        isSubmitting = false;
-        return;
-      }
-      
-      // Submit to API service
-      const result = await metalApiService.submitDesign(design);
-      
-      if (result.success) {
-        // Redirect to success page with reference number and estimated cost/time
-        goto(`/designer/success?ref=${result.referenceNumber}&cost=${result.estimatedCost}&days=${result.estimatedProductionDays}`);
-      } else {
-        throw new Error(result.message || 'Error submitting design');
-      }
-    } catch (error) {
-      showMessage('Error submitting design: ' + error.message, 'is-danger');
-      isSubmitting = false;
+  // Function to capture screenshot of the design
+async function captureDesignScreenshot() {
+  try {
+    // Get the preview container
+    const previewElement = document.querySelector('.preview-container');
+    if (!previewElement) {
+      console.warn('Preview container not found');
+      return null;
     }
+
+    // Use html2canvas library (you'll need to add this)
+    // For now, we'll create a simple canvas representation
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const svg = previewElement.querySelector('svg');
+
+    if (svg) {
+      // Get SVG dimensions
+      const bbox = svg.getBBox();
+      canvas.width = bbox.width || 400;
+      canvas.height = bbox.height || 300;
+
+      // Convert SVG to data URL
+      const svgData = new XMLSerializer().serializeToString(svg);
+      const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(svgBlob);
+
+      return url;
+    }
+
+    return null;
+  } catch (error) {
+    console.error('Error capturing screenshot:', error);
+    return null;
   }
+}
+
+// Function to send email with design details
+async function sendDesignEmail(design, referenceNumber, estimatedCost, productionDays) {
+  try {
+    const screenshot = await captureDesignScreenshot();
+
+    const emailData = {
+      to: 'briand.malo@gmail.com',
+      subject: `Nouvelle Conception de Pièce Métallique - ${referenceNumber}`,
+      designData: JSON.stringify(design, null, 2),
+      referenceNumber: referenceNumber,
+      estimatedCost: estimatedCost,
+      productionDays: productionDays,
+      screenshot: screenshot,
+      submittedAt: new Date().toISOString()
+    };
+
+    // Send to a serverless function or email service
+    const response = await fetch('/api/send-design-email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(emailData)
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to send email');
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Error sending email:', error);
+    return false;
+  }
+}
+
+ async function submitDesign() {
+  try {
+    isSubmitting = true;
+
+    // Validate the entire design before submitting
+    const validationResult = validateDesign(design);
+    if (!validationResult.isValid) {
+      const firstError = Object.values(validationResult.errors)[0];
+      showMessage(`Validation error: ${firstError}`, 'is-danger');
+      isSubmitting = false;
+      return;
+    }
+
+    // Submit to API service
+    const result = await metalApiService.submitDesign(design);
+
+    if (result.success) {
+      // Send email with design details
+      await sendDesignEmail(
+        design,
+        result.referenceNumber,
+        result.estimatedCost,
+        result.estimatedProductionDays
+      );
+
+      // Redirect to success page
+      goto(`/designer/success?ref=${result.referenceNumber}&cost=${result.estimatedCost}&days=${result.estimatedProductionDays}`);
+    } else {
+      throw new Error(result.message || 'Error submitting design');
+    }
+  } catch (error) {
+    showMessage('Error submitting design: ' + error.message, 'is-danger');
+    isSubmitting = false;
+  }
+}
 </script>
 
 <div class="container">
