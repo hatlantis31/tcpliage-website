@@ -1,6 +1,6 @@
 <script>
   import { onMount } from 'svelte';
-  
+
   let formData = {
     nom: '',
     email: '',
@@ -62,13 +62,13 @@
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return re.test(email);
   }
-  
+
   // Validate phone format (10 digits, can have spaces, dots or dashes)
   function isValidPhone(phone) {
     const re = /^(?:(?:\+|00)33[\s.-]{0,3}(?:\(0\)[\s.-]{0,3})?|0)[1-9](?:(?:[\s.-]?\d{2}){4})$/;
     return re.test(phone);
   }
-  
+
   // Validate individual field
   function validateField(field) {
     if (field === 'email') {
@@ -80,35 +80,35 @@
     } else if (field === 'message') {
       validation.message.valid = formData.message.trim().length >= 10;
     }
-    
+
     updateFormValidity();
     return validation[field].valid;
   }
-  
+
   // Update overall form validity
   function updateFormValidity() {
     formValid = Object.values(validation).every(field => field.valid);
   }
-  
+
   // Handle input change
   function handleInput(field) {
     validateField(field);
   }
-  
+
   // Handle input blur
   function handleBlur(field) {
     if (formFields[field] && !validation[field].valid) {
       formFields[field].classList.add('is-danger');
     }
   }
-  
+
   // Handle input focus
   function handleFocus(field) {
     if (formFields[field]) {
       formFields[field].classList.remove('is-danger');
     }
   }
-  
+
   // Handle file selection
   function handleFileChange(event) {
     const file = event.target.files[0];
@@ -119,12 +119,12 @@
       fileLabel = 'Choisir un fichier';
     }
   }
-  
+
   // Handle form submission
   async function handleSubmit() {
     // Validate all fields
     Object.keys(validation).forEach(validateField);
-    
+
     if (!formValid) {
       Object.keys(validation).forEach(field => {
         if (!validation[field].valid && formFields[field]) {
@@ -133,17 +133,44 @@
       });
       return;
     }
-    
+
     submitStatus = 'sending';
-    
+
     try {
-      // Simulate form submission for demo purposes
-      // In a real app, you'd send data to your backend
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      console.log('Form submitted:', formData);
+      const response = await fetch('/api/email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          to: 'briand.malo@gmail.com',
+          replyTo: formData.email,
+          subject: `Contact TCPliage: ${formData.sujet || 'Nouveau message'}`,
+          message: `
+            <h2>Nouveau message de contact</h2>
+            <p><strong>Nom:</strong> ${formData.nom}</p>
+            <p><strong>Email:</strong> ${formData.email}</p>
+            <p><strong>Téléphone:</strong> ${formData.telephone}</p>
+            ${formData.entreprise ? `<p><strong>Entreprise:</strong> ${formData.entreprise}</p>` : ''}
+            <p><strong>Sujet:</strong> ${formData.sujet}</p>
+            <p><strong>Urgence:</strong> ${urgencyLevels.find(u => u.value === formData.urgence)?.label || 'Normal'}</p>
+            <hr>
+            <p><strong>Message:</strong></p>
+            <p>${formData.message.replace(/\n/g, '<br>')}</p>
+          `,
+          submittedAt: new Date().toISOString()
+        })
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || 'Erreur lors de l\'envoi');
+      }
+
+      console.log('Email sent successfully:', result);
       submitStatus = 'success';
-      
+
       // Reset form after success
       setTimeout(() => {
         formData = {
@@ -156,24 +183,23 @@
           urgence: 'normal',
           fichier: null
         };
-        
-        // Reset validation
+
         Object.keys(validation).forEach(key => {
           validation[key].valid = false;
           if (formFields[key]) {
             formFields[key].classList.remove('is-danger');
           }
         });
-        
+
         fileLabel = 'Choisir un fichier';
         formValid = false;
         submitStatus = null;
       }, 3000);
-      
+
     } catch (error) {
       console.error('Error submitting form:', error);
       submitStatus = 'error';
-      errorMessage = "Une erreur s'est produite. Veuillez réessayer ou nous contacter par téléphone.";
+      errorMessage = error.message || "Une erreur s'est produite. Veuillez réessayer.";
     }
   }
 </script>

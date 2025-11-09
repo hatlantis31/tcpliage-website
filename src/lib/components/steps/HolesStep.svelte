@@ -1,4 +1,4 @@
-// src/routes/designer/steps/HolesStep.svelte
+
 <script>
   import { createEventDispatcher } from 'svelte';
   

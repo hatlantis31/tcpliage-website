@@ -1,4 +1,4 @@
-// src/routes/designer/steps/PartTypeStep.svelte
+
 <script>
   import { createEventDispatcher } from 'svelte';
   

@@ -1,4 +1,3 @@
-// src/routes/designer/steps/MaterialStep.svelte
 <script>
   import { createEventDispatcher } from 'svelte';
   

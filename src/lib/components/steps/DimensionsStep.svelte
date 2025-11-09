@@ -1,4 +1,4 @@
-// src/routes/designer/steps/DimensionsStep.svelte
+
 <script>
   import { createEventDispatcher, onMount } from 'svelte';
   
