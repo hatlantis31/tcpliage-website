@@ -14,7 +14,8 @@
   // Keep all your existing onMount and animation code...
   import { onMount } from 'svelte';
   let isVisible = false;
-  
+
+
   onMount(() => {
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
