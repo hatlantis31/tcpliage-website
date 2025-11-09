@@ -397,12 +397,6 @@ async function sendDesignEmail(design, referenceNumber, estimatedCost, productio
             </span>
           </button>
         {:else}
-          <button class="button is-success" on:click={submitDesign}>
-            <span class="icon">
-              <i class="fas fa-check"></i>
-            </span>
-            <span>Submit Design</span>
-          </button>
         {/if}
       </div>
     </div>
