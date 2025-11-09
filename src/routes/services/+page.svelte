@@ -1,66 +1,67 @@
 <script>
   // Hardcoded services data
+  import ServiceCard from '$lib/components/ServiceCard.svelte';
   const services = [
     {
-      id: 'urgence',
-      titre: "Fabrication d'Urgence",
-      description: "Service disponible 24h/24 et 7j/7 pour répondre à vos besoins urgents en fabrication métallique.",
-      image: '/images/services/urgence.jpg',
-      caracteristiques: [
-        { description: "Intervention rapide en 24h", order: 1 },
-        { description: "Disponibilité 7j/7, 24h/24", order: 2 },
-        { description: "Livraison express possible", order: 3 },
-        { description: "Solutions adaptées aux chantiers", order: 4 }
-      ]
-    },
-    {
-      id: 'sur-mesure',
-      titre: "Pièces Sur Mesure",
-      description: "Fabrication de pièces métalliques personnalisées selon vos plans et spécifications exactes.",
-      image: '/images/services/sur-mesure.jpg',
-      caracteristiques: [
-        { description: "Travail selon plans ou croquis", order: 1 },
-        { description: "Haute précision de fabrication", order: 2 },
-        { description: "Large choix de matériaux", order: 3 },
-        { description: "Conseil technique personnalisé", order: 4 }
-      ]
-    },
-    {
-      id: 'couvertines',
-      titre: "Couvertines",
-      description: "Fabrication de couvertines métalliques pour la protection des acrotères et murets.",
-      image: '/images/services/couvertines.jpg',
-      caracteristiques: [
-        { description: "Protection efficace contre les infiltrations", order: 1 },
-        { description: "Finitions soignées et esthétiques", order: 2 },
-        { description: "Adaptation à toutes dimensions", order: 3 },
-        { description: "Différentes finitions disponibles", order: 4 }
-      ]
-    },
-    {
-      id: 'habillages',
-      titre: "Habillages Métalliques",
-      description: "Solutions d'habillage en métal pour façades, murs et éléments architecturaux.",
-      image: '/images/services/habillages.jpg',
-      caracteristiques: [
-        { description: "Design contemporain", order: 1 },
-        { description: "Solutions durables et résistantes", order: 2 },
-        { description: "Multiples finitions possibles", order: 3 },
-        { description: "Installation simple sur chantier", order: 4 }
-      ]
-    },
-    {
-      id: 'quincaillerie',
-      titre: "Quincaillerie Spéciale",
-      description: "Fabrication de quincaillerie métallique sur mesure pour vos projets spécifiques.",
-      image: '/images/services/quincaillerie.jpg',
-      caracteristiques: [
-        { description: "Pièces sur mesure", order: 1 },
-        { description: "Haute résistance", order: 2 },
-        { description: "Finitions au choix", order: 3 },
-        { description: "Adaptation à vos contraintes", order: 4 }
-      ]
-    }
+    id: 'urgence',
+    titre: "Fabrication d'Urgence",
+    description: "Service disponible 24h/24 et 7j/7 pour répondre à vos besoins urgents en fabrication métallique.",
+    image: '/services/emergency.jpg',  // Fixed
+    caracteristiques: [
+      { description: "Intervention rapide en 24h", order: 1 },
+      { description: "Disponibilité 7j/7, 24h/24", order: 2 },
+      { description: "Livraison express possible", order: 3 },
+      { description: "Solutions adaptées aux chantiers", order: 4 }
+    ]
+  },
+  {
+    id: 'sur-mesure',
+    titre: "Pièces Sur Mesure",
+    description: "Fabrication de pièces métalliques personnalisées selon vos plans et spécifications exactes.",
+    image: '/services/sur-mesure.jpg',  // OK
+    caracteristiques: [
+      { description: "Travail selon plans ou croquis", order: 1 },
+      { description: "Haute précision de fabrication", order: 2 },
+      { description: "Large choix de matériaux", order: 3 },
+      { description: "Conseil technique personnalisé", order: 4 }
+    ]
+  },
+  {
+    id: 'couvertines',
+    titre: "Couvertines",
+    description: "Fabrication de couvertines métalliques pour la protection des acrotères et murets.",
+    image: '/services/couvertines.jpg',  // OK
+    caracteristiques: [
+      { description: "Protection efficace contre les infiltrations", order: 1 },
+      { description: "Finitions soignées et esthétiques", order: 2 },
+      { description: "Adaptation à toutes dimensions", order: 3 },
+      { description: "Différentes finitions disponibles", order: 4 }
+    ]
+  },
+  {
+    id: 'habillages',
+    titre: "Habillages Métalliques",
+    description: "Solutions d'habillage en métal pour façades, murs et éléments architecturaux.",
+    image: '/services/habillages.jpg',  // OK
+    caracteristiques: [
+      { description: "Design contemporain", order: 1 },
+      { description: "Solutions durables et résistantes", order: 2 },
+      { description: "Multiples finitions possibles", order: 3 },
+      { description: "Installation simple sur chantier", order: 4 }
+    ]
+  },
+  {
+    id: 'quincaillerie',
+    titre: "Quincaillerie Spéciale",
+    description: "Fabrication de quincaillerie métallique sur mesure pour vos projets spécifiques.",
+    image: '/services/quincaillerie.jpg',  // OK
+    caracteristiques: [
+      { description: "Pièces sur mesure", order: 1 },
+      { description: "Haute résistance", order: 2 },
+      { description: "Finitions au choix", order: 3 },
+      { description: "Adaptation à vos contraintes", order: 4 }
+    ]
+  }
   ];
 </script>
 
